@@ -6,7 +6,7 @@
   <groupId>com.untamedears.mustercull</groupId>
   <artifactId>MusterCull</artifactId>
   <packaging>jar</packaging>
-  <version>1.4.2-${build.number}</version>
+  <version>1.4.3-${build.number}</version>
   <name>MusterCull</name>
   <url>https://github.com/Civcraft/MusterCull</url>
   
@@ -35,7 +35,7 @@
     <dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>craftbukkit</artifactId>
-      <version>1.7.2-R0.3</version>
+      <version>1.8-R0.3</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
