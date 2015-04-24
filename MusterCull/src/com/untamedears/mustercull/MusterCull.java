@@ -211,7 +211,7 @@ public class MusterCull extends JavaPlugin {
 	 */
 	public int overHardMobLimit() {
 
-        int playerCount = getServer().getOnlinePlayers().length;
+        int playerCount = getServer().getOnlinePlayers().size();
 		int hardLimit = getMaxMob();
 		int lessHardLimit = getPlayerMultiplier() * playerCount;
 		int currentLimit = hardLimit - lessHardLimit;
