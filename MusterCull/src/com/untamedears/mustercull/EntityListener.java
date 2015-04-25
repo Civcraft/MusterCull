@@ -55,7 +55,7 @@ public class EntityListener extends Listener {
 		}
 		
 		if (!this.getPluginInstance().isPaused(CullType.SPAWN)) {
-			if (event.getSpawnReason() != SpawnReason.SPAWNER) {
+			if (event.getSpawnReason() != SpawnReason.SPAWNER || event.getSpawnReason() == SpawnReason.NATURAL) {
 				limit = this.getPluginInstance().getLimit(entity.getType(), CullType.SPAWN);
 				
 				if (limit != null) {
