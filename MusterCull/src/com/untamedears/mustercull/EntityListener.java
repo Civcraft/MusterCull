@@ -26,7 +26,7 @@ public class EntityListener extends Listener {
 	 * This handler is called when an entity is spawning.
 	 * @param event A reference to the associated Bukkit event.
 	 */
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled=true)
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
 
 		/* If over hard mob limit, stop all mob spawning.
