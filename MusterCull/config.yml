@@ -3,6 +3,14 @@
 # Bukkit plug-in default configuration file.
 
 limits:
+- type: RABBIT
+  culling: DAMAGE
+  limit: 10
+  range: 70
+- type: RABBIT
+  culling: SPAWN
+  limit: 10
+  range: 70
 - type: CREEPER
   culling: SPAWN
   limit: 10
