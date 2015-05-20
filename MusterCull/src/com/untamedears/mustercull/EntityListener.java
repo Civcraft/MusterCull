@@ -1,5 +1,6 @@
 package com.untamedears.mustercull;
 
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,7 +34,8 @@ public class EntityListener extends Listener {
 		 * The entity in this event isn't included in overHardMobLimit so account for this. */
 		if (getPluginInstance().overHardMobLimit() + 1 > 0) {
 			/* Always let a player join. */
-			if (! (event.getEntity() instanceof Player)) {
+			if (! (event.getEntity() instanceof Player)
+				&& (! (event.getEntity() instanceof ArmorStand))) {
 				event.setCancelled(true);
 				return;
 			}
