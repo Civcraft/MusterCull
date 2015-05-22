@@ -244,7 +244,8 @@ public class MusterCull extends JavaPlugin {
         	List<LivingEntity> mobs = world.getLivingEntities();
             for (LivingEntity mob : mobs) {
                 if (   (! (mob instanceof Player))
-                    && (! mob.isDead())) {
+                	   && (! (mob instanceof ArmorStand))
+                	   && (! mob.isDead())) {
                     entities.add(mob);
                 }
             }
