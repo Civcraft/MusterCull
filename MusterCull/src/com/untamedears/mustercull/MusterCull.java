@@ -211,7 +211,7 @@ public class MusterCull extends JavaPlugin {
 	 */
 	public int overHardMobLimit() {
 
-        int playerCount = getServer().getOnlinePlayers().length;
+        int playerCount = getServer().getOnlinePlayers().size();
 		int hardLimit = getMaxMob();
 		int lessHardLimit = getPlayerMultiplier() * playerCount;
 		int currentLimit = hardLimit - lessHardLimit;
@@ -244,7 +244,8 @@ public class MusterCull extends JavaPlugin {
         	List<LivingEntity> mobs = world.getLivingEntities();
             for (LivingEntity mob : mobs) {
                 if (   (! (mob instanceof Player))
-                    && (! mob.isDead())) {
+                	   && (! (mob instanceof ArmorStand))
+                	   && (! mob.isDead())) {
                     entities.add(mob);
                 }
             }

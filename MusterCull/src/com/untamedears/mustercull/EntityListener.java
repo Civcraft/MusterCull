@@ -1,5 +1,6 @@
 package com.untamedears.mustercull;
 
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -26,14 +27,15 @@ public class EntityListener extends Listener {
 	 * This handler is called when an entity is spawning.
 	 * @param event A reference to the associated Bukkit event.
 	 */
-	@EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled=true)
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
 	public void onCreatureSpawn(CreatureSpawnEvent event) {
 
 		/* If over hard mob limit, stop all mob spawning.
 		 * The entity in this event isn't included in overHardMobLimit so account for this. */
 		if (getPluginInstance().overHardMobLimit() + 1 > 0) {
 			/* Always let a player join. */
-			if (! (event.getEntity() instanceof Player)) {
+			if (! (event.getEntity() instanceof Player)
+				&& (! (event.getEntity() instanceof ArmorStand))) {
 				event.setCancelled(true);
 				return;
 			}
