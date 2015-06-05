@@ -599,9 +599,11 @@ public class MusterCull extends JavaPlugin {
 			livingEntity.damage((double)damage);
 		} 
 		else if (Vehicle.class.isAssignableFrom(entity.getClass())) {
-			NotifyDamaged(entity, damage);
 			Vehicle vehicle = (Vehicle) entity;
-			vehicle.remove();
+			if(vehicle.isEmpty()){
+				NotifyDamaged(entity, damage);
+				vehicle.remove();
+			}
 		} 
 		else {
 			getLogger().warning("Attempt to damage non-living entity or a vehicle '" + entity.getType().toString() + "' detected.");
