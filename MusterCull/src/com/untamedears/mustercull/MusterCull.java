@@ -4,7 +4,12 @@ import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 
 /**
  * This is the main class for the MusterCull Bukkit plug-in.
@@ -88,7 +93,25 @@ public class MusterCull extends JavaPlugin {
 		for (String command : getDescription().getCommands().keySet()) {
 			getCommand(command).setExecutor(commander);
 		}
+		
+		logging();
     }
+	
+	public void logging() {
+		try {
+			Handler fileHandler = new FileHandler(getDataFolder() + File.separator + "MusterCullLog.log.lck", true);
+			getLogger().addHandler(fileHandler);
+		} catch (SecurityException | IOException e) {
+			System.out.println("Creating directory");
+			getDataFolder().mkdirs();
+			try {
+				Handler fileHandler = new FileHandler(getDataFolder() + File.separator + "MusterCullLog.log.lck", true);
+				getLogger().addHandler(fileHandler);
+			} catch (IOException e2) {
+                throw new RuntimeException("Failed to load log file", e);
+			}
+		}
+	}
 	
 	public float getHardCapCullingPriorityStrategyPenaltyMobPercent()
 	{
@@ -254,6 +277,35 @@ public class MusterCull extends JavaPlugin {
         return entities;
 	}
 
+	/**
+	 * Returns list of entities by class in all worlds.
+	 * @return Returns list of entities by class in all worlds.
+	 */
+	public List<Entity> getEntitiesByClass(Class<?>... classes) {
+
+        List<World> worlds = getServer().getWorlds();
+        int entityCount = 0;
+
+		for (World world : worlds) {
+			entityCount += world.getEntitiesByClasses(classes).size();
+		}
+
+        List<Entity> entities = new ArrayList<Entity>(entityCount);
+
+        for (World world : worlds) {
+        	List<Entity> entitiesInWorld = new ArrayList<Entity>(world.getEntitiesByClasses(classes));
+            for (Entity entity : entitiesInWorld) {
+                if (   (! (entity instanceof Player))
+                	   && (! (entity instanceof ArmorStand))
+                	   && (! entity.isDead())) {
+                    entities.add(entity);
+                }
+            }
+        }
+
+        return entities;
+	}
+	
     /**
      * Returns number of living entities in all worlds.
      * @return number of living entities in all worlds.
@@ -497,6 +549,32 @@ public class MusterCull extends JavaPlugin {
 	}
 	
 	/**
+	 * Causes damage to entities of a certain type.
+	 * @param entityType The type of entity to damage.
+	 * @param damage The amount of damage to deal to the entities.
+	 * @return The number of entities damage may have been applied to
+	 */
+	public int damageEntities(EntityType entityType, int damage) {
+	
+		int count = 0;
+		
+		List<Entity> allEntities = getEntitiesByClass(entityType.getEntityClass());
+		
+		if (allEntities == null) {
+			return 0;
+		}		
+		
+		for (Entity entity : allEntities) {
+			if (entity.getType() == entityType) {
+				this.damageEntity(entity, damage);
+				count++;
+			}
+		}
+		
+		return count;
+	}
+	
+	/**
 	 * Causes a specified amount of damage to an entity, doubled for baby animals.
 	 * @param entity The bukkit entity to cause damage to
 	 * @param damage The amount of damage to cause to the entity
@@ -519,11 +597,15 @@ public class MusterCull extends JavaPlugin {
 			NotifyDamaged(entity, damage);
 			LivingEntity livingEntity = (LivingEntity)entity;
 			livingEntity.damage((double)damage);
-		}
+		} 
+		else if (Vehicle.class.isAssignableFrom(entity.getClass())) {
+			NotifyDamaged(entity, damage);
+			Vehicle vehicle = (Vehicle) entity;
+			vehicle.remove();
+		} 
 		else {
-			getLogger().warning("Attempt to damage non-living entity '" + entity.getType().toString() + "' detected.");
+			getLogger().warning("Attempt to damage non-living entity or a vehicle '" + entity.getType().toString() + "' detected.");
 		}
-		
 	}
 	
 	/**
