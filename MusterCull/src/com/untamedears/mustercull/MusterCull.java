@@ -500,23 +500,46 @@ public class MusterCull extends JavaPlugin {
 	}
 
 	/**
+	 * Returns nearby entities to an entity.
+	 * @param entity
+	 * @param distance to look from the entity
+	 * @return The list of entities surrounding the entity
+	 */
+	public List<Entity> getNearbyEntities(Entity entity, int distance) {
+		List<Entity> entities = new ArrayList<Entity>();
+		
+		if(entity == null){
+			return null;
+		}
+		
+		for (Entity e : entity.getWorld().getEntities()) {
+			double distanceFromEntity = entity.getLocation().distance(e.getLocation());
+			if (distanceFromEntity > distance)
+				continue;
+			entities.add(e);
+		}
+		return entities;
+	}
+
+	
+	/**
 	 * Returns nearby entities to a player by name.
 	 * @param playerName The name of a player to look up
-	 * @param rangeX Distance along the x plane to look from player
-	 * @param rangeZ Distance along the z plane to look from player
+	 * @param distance to look from player
 	 * @return The list of entities surrounding the player
 	 */
-	public List<Entity> getNearbyEntities(String playerName, int rangeX, int rangeZ) {
+	public List<Entity> getNearbyEntities(String playerName, int distance) {
+		Player player = null;
 		
 		for (World world : getServer().getWorlds()) {
-			for (Player player : world.getPlayers()) {
-				if (0 == player.getName().compareToIgnoreCase(playerName)) {
-					return player.getNearbyEntities(rangeX, player.getWorld().getMaxHeight(), rangeZ);
+			for (Player p : world.getPlayers()) {
+				if (0 == p.getName().compareToIgnoreCase(playerName)) {
+					player = p;
 				}
 			}
 		}
 		
-		return null;
+		return getNearbyEntities(player, distance);
 	}
 
 	
@@ -532,7 +555,7 @@ public class MusterCull extends JavaPlugin {
 	
 		int count = 0;
 		
-		List<Entity> nearbyEntities = getNearbyEntities(playerName, range, range);
+		List<Entity> nearbyEntities = getNearbyEntities(playerName, range);
 		
 		if (nearbyEntities == null) {
 			return 0;
@@ -642,7 +665,7 @@ public class MusterCull extends JavaPlugin {
 		// Loop through entities in range and count similar entities.
 		int count = 0;
 		
-		for (Entity otherEntity : entity.getNearbyEntities(limit.getRange(), entity.getWorld().getMaxHeight(), limit.getRange())) {
+		for (Entity otherEntity : getNearbyEntities(entity, limit.getRange())) {
 			if (0 == otherEntity.getType().compareTo(entity.getType())) {
 				count += 1;
 				
