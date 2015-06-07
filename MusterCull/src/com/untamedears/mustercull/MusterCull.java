@@ -306,6 +306,27 @@ public class MusterCull extends JavaPlugin {
         return entities;
 	}
 	
+	/**
+	 * Returns list of entities by class in a specific world.
+	 * @return Returns list of entities by class in in a specific world.
+	 */
+	public List<Entity> getEntitiesByClass(World world, Class<?>... classes) {
+		
+		int entityCount = world.getEntitiesByClasses(classes).size();
+		List<Entity> entities = new ArrayList<Entity>(entityCount);
+		
+        List<Entity> entitiesInWorld = new ArrayList<Entity>(world.getEntitiesByClasses(classes));
+        
+        for (Entity entity : entitiesInWorld) {
+            if (   (! (entity instanceof Player))
+            	   && (! (entity instanceof ArmorStand))
+            	   && (! entity.isDead())) {
+                entities.add(entity);
+            }
+        }
+        return entities;
+	}
+	
     /**
      * Returns number of living entities in all worlds.
      * @return number of living entities in all worlds.
@@ -505,14 +526,14 @@ public class MusterCull extends JavaPlugin {
 	 * @param distance to look from the entity
 	 * @return The list of entities surrounding the entity
 	 */
-	public List<Entity> getNearbyEntities(Entity entity, int distance) {
+	public List<Entity> getNearbyEntities(Entity entity, int distance, Class<?>... classes) {
 		List<Entity> entities = new ArrayList<Entity>();
 		
 		if(entity == null){
 			return null;
 		}
 		
-		for (Entity e : entity.getWorld().getEntities()) {
+		for (Entity e : getEntitiesByClass(entity.getWorld(), classes)) {
 			double distanceFromEntity = entity.getLocation().distance(e.getLocation());
 			if (distanceFromEntity > distance)
 				continue;
@@ -528,7 +549,7 @@ public class MusterCull extends JavaPlugin {
 	 * @param distance to look from player
 	 * @return The list of entities surrounding the player
 	 */
-	public List<Entity> getNearbyEntities(String playerName, int distance) {
+	public List<Entity> getNearbyEntities(String playerName, int distance, Class<?>... classes) {
 		Player player = null;
 		
 		for (World world : getServer().getWorlds()) {
@@ -539,7 +560,7 @@ public class MusterCull extends JavaPlugin {
 			}
 		}
 		
-		return getNearbyEntities(player, distance);
+		return getNearbyEntities(player, distance, classes);
 	}
 
 	
@@ -555,7 +576,7 @@ public class MusterCull extends JavaPlugin {
 	
 		int count = 0;
 		
-		List<Entity> nearbyEntities = getNearbyEntities(playerName, range);
+		List<Entity> nearbyEntities = getNearbyEntities(playerName, range, entityType.getEntityClass());
 		
 		if (nearbyEntities == null) {
 			return 0;
@@ -629,7 +650,7 @@ public class MusterCull extends JavaPlugin {
 			}
 		} 
 		else {
-			getLogger().warning("Attempt to damage non-living entity or a vehicle '" + entity.getType().toString() + "' detected.");
+			getLogger().warning("Attempt to damage entity that is not supported '" + entity.getType().toString() + "' detected.");
 		}
 	}
 	
@@ -665,7 +686,7 @@ public class MusterCull extends JavaPlugin {
 		// Loop through entities in range and count similar entities.
 		int count = 0;
 		
-		for (Entity otherEntity : getNearbyEntities(entity, limit.getRange())) {
+		for (Entity otherEntity : getNearbyEntities(entity, limit.getRange(), entity.getType().getEntityClass())) {
 			if (0 == otherEntity.getType().compareTo(entity.getType())) {
 				count += 1;
 				
