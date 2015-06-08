@@ -171,6 +171,14 @@ limits:
   culling: SPAWN
   limit: 15
   range: 144
+- type: GHAST
+  culling: DAMAGE
+  limit: 8
+  range: 144
+- type: GHAST
+  culling: SPAWN
+  limit: 8
+  range: 144
 
 # The amount of damage to apply to mobs which are considered crowded under the
 # DAMAGE method of culling.
