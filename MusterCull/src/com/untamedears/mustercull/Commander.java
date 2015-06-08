@@ -561,7 +561,7 @@ public class Commander implements CommandExecutor {
 	 */
 	public boolean commandCull(CommandSender sender, String[] argv) {
 		
-		if (argv.length < 2) {
+		if (argv.length < 1) {
 			return false;
 		}
 		
@@ -572,6 +572,16 @@ public class Commander implements CommandExecutor {
 			return true;
 		}
 		
+		if(argv.length == 1){
+			int count = this.pluginInstance.damageEntities(entityType, 999);
+			if (count > 0) {
+				sender.sendMessage("MusterCull: damaged up to " + count + " entities of type " + entityType + ".");
+			}
+			else {
+				sender.sendMessage("MusterCull: Could not find any entities of type " + entityType + " to damage.");
+			}
+			return true;
+		}
 		int range = 0;
 		
 		try {

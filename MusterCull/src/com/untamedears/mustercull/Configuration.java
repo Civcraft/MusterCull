@@ -196,10 +196,10 @@ public class Configuration {
 	            
 	            int range = (Integer)map.get("range");
 			
-		    if (range > 80) {
-	            	this.pluginInstance.getLogger().warning("range is > 80, ignoring this and setting to 80.");
-			range = 80;
-	            }
+	            //if (range > 80) {
+	            //	this.pluginInstance.getLogger().warning("range is > 80, ignoring this and setting to 80.");
+	            //	range = 80;
+	            //}
 	            
 	            setLimit(type, new ConfigurationLimit(limit, culling, range));
 	        }

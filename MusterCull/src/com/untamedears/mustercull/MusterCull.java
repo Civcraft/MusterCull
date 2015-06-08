@@ -4,7 +4,12 @@ import org.bukkit.World;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
 
 /**
  * This is the main class for the MusterCull Bukkit plug-in.
@@ -88,7 +93,25 @@ public class MusterCull extends JavaPlugin {
 		for (String command : getDescription().getCommands().keySet()) {
 			getCommand(command).setExecutor(commander);
 		}
+		
+		logging();
     }
+	
+	public void logging() {
+		try {
+			Handler fileHandler = new FileHandler(getDataFolder() + File.separator + "MusterCullLog.log.lck", true);
+			getLogger().addHandler(fileHandler);
+		} catch (SecurityException | IOException e) {
+			System.out.println("Creating directory");
+			getDataFolder().mkdirs();
+			try {
+				Handler fileHandler = new FileHandler(getDataFolder() + File.separator + "MusterCullLog.log.lck", true);
+				getLogger().addHandler(fileHandler);
+			} catch (IOException e2) {
+                throw new RuntimeException("Failed to load log file", e);
+			}
+		}
+	}
 	
 	public float getHardCapCullingPriorityStrategyPenaltyMobPercent()
 	{
@@ -254,6 +277,56 @@ public class MusterCull extends JavaPlugin {
         return entities;
 	}
 
+	/**
+	 * Returns list of entities by class in all worlds.
+	 * @return Returns list of entities by class in all worlds.
+	 */
+	public List<Entity> getEntitiesByClass(Class<?>... classes) {
+
+        List<World> worlds = getServer().getWorlds();
+        int entityCount = 0;
+
+		for (World world : worlds) {
+			entityCount += world.getEntitiesByClasses(classes).size();
+		}
+
+        List<Entity> entities = new ArrayList<Entity>(entityCount);
+
+        for (World world : worlds) {
+        	List<Entity> entitiesInWorld = new ArrayList<Entity>(world.getEntitiesByClasses(classes));
+            for (Entity entity : entitiesInWorld) {
+                if (   (! (entity instanceof Player))
+                	   && (! (entity instanceof ArmorStand))
+                	   && (! entity.isDead())) {
+                    entities.add(entity);
+                }
+            }
+        }
+
+        return entities;
+	}
+	
+	/**
+	 * Returns list of entities by class in a specific world.
+	 * @return Returns list of entities by class in in a specific world.
+	 */
+	public List<Entity> getEntitiesByClass(World world, Class<?>... classes) {
+		
+		int entityCount = world.getEntitiesByClasses(classes).size();
+		List<Entity> entities = new ArrayList<Entity>(entityCount);
+		
+        List<Entity> entitiesInWorld = new ArrayList<Entity>(world.getEntitiesByClasses(classes));
+        
+        for (Entity entity : entitiesInWorld) {
+            if (   (! (entity instanceof Player))
+            	   && (! (entity instanceof ArmorStand))
+            	   && (! entity.isDead())) {
+                entities.add(entity);
+            }
+        }
+        return entities;
+	}
+	
     /**
      * Returns number of living entities in all worlds.
      * @return number of living entities in all worlds.
@@ -448,23 +521,46 @@ public class MusterCull extends JavaPlugin {
 	}
 
 	/**
+	 * Returns nearby entities to an entity.
+	 * @param entity
+	 * @param distance to look from the entity
+	 * @return The list of entities surrounding the entity
+	 */
+	public List<Entity> getNearbyEntities(Entity entity, int distance, Class<?>... classes) {
+		List<Entity> entities = new ArrayList<Entity>();
+		
+		if(entity == null){
+			return null;
+		}
+		
+		for (Entity e : getEntitiesByClass(entity.getWorld(), classes)) {
+			double distanceFromEntity = entity.getLocation().distance(e.getLocation());
+			if (distanceFromEntity > distance)
+				continue;
+			entities.add(e);
+		}
+		return entities;
+	}
+
+	
+	/**
 	 * Returns nearby entities to a player by name.
 	 * @param playerName The name of a player to look up
-	 * @param rangeX Distance along the x plane to look from player
-	 * @param rangeZ Distance along the z plane to look from player
+	 * @param distance to look from player
 	 * @return The list of entities surrounding the player
 	 */
-	public List<Entity> getNearbyEntities(String playerName, int rangeX, int rangeZ) {
+	public List<Entity> getNearbyEntities(String playerName, int distance, Class<?>... classes) {
+		Player player = null;
 		
 		for (World world : getServer().getWorlds()) {
-			for (Player player : world.getPlayers()) {
-				if (0 == player.getName().compareToIgnoreCase(playerName)) {
-					return player.getNearbyEntities(rangeX, player.getWorld().getMaxHeight(), rangeZ);
+			for (Player p : world.getPlayers()) {
+				if (0 == p.getName().compareToIgnoreCase(playerName)) {
+					player = p;
 				}
 			}
 		}
 		
-		return null;
+		return getNearbyEntities(player, distance, classes);
 	}
 
 	
@@ -480,13 +576,39 @@ public class MusterCull extends JavaPlugin {
 	
 		int count = 0;
 		
-		List<Entity> nearbyEntities = getNearbyEntities(playerName, range, range);
+		List<Entity> nearbyEntities = getNearbyEntities(playerName, range, entityType.getEntityClass());
 		
 		if (nearbyEntities == null) {
 			return 0;
 		}		
 		
 		for (Entity entity : nearbyEntities) {
+			if (entity.getType() == entityType) {
+				this.damageEntity(entity, damage);
+				count++;
+			}
+		}
+		
+		return count;
+	}
+	
+	/**
+	 * Causes damage to entities of a certain type.
+	 * @param entityType The type of entity to damage.
+	 * @param damage The amount of damage to deal to the entities.
+	 * @return The number of entities damage may have been applied to
+	 */
+	public int damageEntities(EntityType entityType, int damage) {
+	
+		int count = 0;
+		
+		List<Entity> allEntities = getEntitiesByClass(entityType.getEntityClass());
+		
+		if (allEntities == null) {
+			return 0;
+		}		
+		
+		for (Entity entity : allEntities) {
 			if (entity.getType() == entityType) {
 				this.damageEntity(entity, damage);
 				count++;
@@ -519,11 +641,17 @@ public class MusterCull extends JavaPlugin {
 			NotifyDamaged(entity, damage);
 			LivingEntity livingEntity = (LivingEntity)entity;
 			livingEntity.damage((double)damage);
-		}
+		} 
+		else if (Vehicle.class.isAssignableFrom(entity.getClass())) {
+			Vehicle vehicle = (Vehicle) entity;
+			if(vehicle.isEmpty()){
+				NotifyDamaged(entity, damage);
+				vehicle.remove();
+			}
+		} 
 		else {
-			getLogger().warning("Attempt to damage non-living entity '" + entity.getType().toString() + "' detected.");
+			getLogger().warning("Attempt to damage entity that is not supported '" + entity.getType().toString() + "' detected.");
 		}
-		
 	}
 	
 	/**
@@ -558,7 +686,7 @@ public class MusterCull extends JavaPlugin {
 		// Loop through entities in range and count similar entities.
 		int count = 0;
 		
-		for (Entity otherEntity : entity.getNearbyEntities(limit.getRange(), entity.getWorld().getMaxHeight(), limit.getRange())) {
+		for (Entity otherEntity : getNearbyEntities(entity, limit.getRange(), entity.getType().getEntityClass())) {
 			if (0 == otherEntity.getType().compareTo(entity.getType())) {
 				count += 1;
 				
