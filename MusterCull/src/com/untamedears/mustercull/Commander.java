@@ -357,7 +357,7 @@ public class Commander implements CommandExecutor {
 		if(argv.length == 6){
 			
 			try {
-				range = Integer.parseInt(argv[4]);
+				spawnDelay = Integer.parseInt(argv[4]);
 			}
 			catch (NumberFormatException e) {
 				sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[4]);
@@ -370,7 +370,7 @@ public class Commander implements CommandExecutor {
 			}
 			
 			try {
-				range = Integer.parseInt(argv[5]);
+				multiplayer = Integer.parseInt(argv[5]);
 			}
 			catch (NumberFormatException e) {
 				sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[5]);
