@@ -33,7 +33,7 @@ public class DamageLaborer extends Laborer {
 		
 		for (int i = 0; i < damageCalls; i++)
 		{
-			EntityLimitPair entityLimitPair = this.getPluginInstance().getNextEntity();
+			EntityLimitPair entityLimitPair = this.getPluginInstance().getNextEntityDamage();
 			
 			if (entityLimitPair == null) {
 				return;

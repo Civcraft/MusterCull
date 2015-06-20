@@ -30,17 +30,32 @@ public class ConfigurationLimit {
 	private int range = 0;
 	
 	/**
+	 * The amount of entities that needs to spawn before the entity will actually spawn.
+	 */
+	private int spawnDelay;
+	
+	/**
+	 * Multiplayer for drops of merged mobs.
+	 */
+	private int multiplayer;
+	
+	/**
 	 * Constructor which sets all properties of this class.
 	 * @param limit The maximum number of mobs of a specific type to allow
 	 * @param culling The method used to cull the mob.
 	 * @param range The range to check
+	 * @param spawnDelay The amount of entities that needs to spawn before the entity will actually spawn.
+	 * @param multiplayer The multiplayer for drops of merged mobs.
 	 */
-	ConfigurationLimit(int limit, CullType culling, int range) {
+
+	ConfigurationLimit(int limit, CullType culling, int range, int spawnDelay, int multiplayer) {
 		this.setLimit(limit);
 		this.setCulling(culling);
 		this.setRange(range);
+		this.setSpawnDelay(spawnDelay);
+		this.setMultiplayer(multiplayer);
 	}
-
+	
 	/**
 	 * Sets the max number of specific mob types to spawn in an area.
 	 * @param limit The max number of specific mob types to spawn in an area.
@@ -95,6 +110,24 @@ public class ConfigurationLimit {
 	 */
 	public int getRange() {
 		return range;
+	}
+	
+	public void setSpawnDelay(int spawnDelay) {
+		this.spawnDelay = spawnDelay;
+		this.dirty = true;
+	}
+	
+	public int getSpawnDelay(){
+		return spawnDelay;
+	}
+	
+	public void setMultiplayer(int multiplayer) {
+		this.multiplayer = multiplayer;
+		this.dirty = true;
+	}
+	
+	public int getMultiplayery(){
+		return multiplayer;
 	}
 	
 	/**

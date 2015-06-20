@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityDeathEvent;
 
 /**
  * This class provides event handlers for game entities.
@@ -44,6 +45,16 @@ public class EntityListener extends Listener {
 		Entity entity = event.getEntity();
 		ConfigurationLimit limit = null;
 		
+		if (!this.getPluginInstance().isPaused(CullType.MERGE)) {
+			
+			limit = this.getPluginInstance().getLimit(entity.getType(), CullType.MERGE);
+				
+			if (limit != null) {		
+				event.setCancelled(this.getPluginInstance().mergeEntity(entity, limit));
+				return;
+			}	
+		}
+		
 		if (!this.getPluginInstance().isPaused(CullType.SPAWNER)) {
 			if (event.getSpawnReason() == SpawnReason.SPAWNER || event.getSpawnReason() == SpawnReason.NETHER_PORTAL) {
 				
@@ -65,6 +76,15 @@ public class EntityListener extends Listener {
 					return;
 				}
 			}
+		}
+	}
+	
+	@EventHandler(priority = EventPriority.NORMAL, ignoreCancelled=true)
+	public void onCreatureDeath(EntityDeathEvent event) {
+		if(this.getPluginInstance().getMergedEntities().get(event.getEntity())!=null){
+			this.getPluginInstance().AdjustDropsOfMergedEntity(event.getEntity(), event.getDrops());
+			this.getPluginInstance().getLogger().info("A merged entity was killed" + event.getEntity().toString() + " at " + event.getEntity().getLocation().toString() + "\nmultiplayer: " + this.getPluginInstance().getMergedEntities().get(event.getEntity()));
+			this.getPluginInstance().getMergedEntities().remove(event.getEntity());
 		}
 	}
 	

@@ -171,8 +171,9 @@ public class Commander implements CommandExecutor {
 			}
 		}
 		else if (argv[0].compareToIgnoreCase("reset") == 0) {
-			this.pluginInstance.clearRemainingDamageEntities();
-			sender.sendMessage("MusterCull: remaining entities cleared from the damage list.");
+			this.pluginInstance.clearRemainingEntitiesDamage();
+			this.pluginInstance.clearRemainingEntitiesMerge();
+			sender.sendMessage("MusterCull: remaining entities cleared from the list.");
 		}
 		else if (argv[0].compareToIgnoreCase("damage") == 0) {
 			
@@ -252,10 +253,15 @@ public class Commander implements CommandExecutor {
 		boolean reported = false;
 		
 		if (this.pluginInstance.hasDamageLimits()) {
-			sender.sendMessage("MusterCull is using a laborer to damage " + this.pluginInstance.getRemainingDamageEntities() + " remaining entities before starting over.");
+			sender.sendMessage("MusterCull is using a laborer to damage " + this.pluginInstance.getRemainingEntitiesDamage() + " remaining entities before starting over.");
 			reported = true;
 		}
-
+		
+		if (this.pluginInstance.hasMergeLimits()) {
+			sender.sendMessage("MusterCull is using a laborer to merge" + this.pluginInstance.getRemainingEntitiesMerge() + " remaining entities before starting over.");
+			reported = true;
+		}
+		
 		for (CullType cullType : CullType.values()) {
 			if (this.pluginInstance.isPaused(cullType)) {
 				sender.sendMessage("CullType " + cullType.toString() + " is paused.");
@@ -345,8 +351,38 @@ public class Commander implements CommandExecutor {
 			sender.sendMessage("MusterCull: range must be greater than zero.");
 			return true;
 		}
+		int spawnDelay = 0;
+		int multiplayer = 0;
 		
-		ConfigurationLimit configLimit = new ConfigurationLimit(limit, cullingType, range);
+		if(argv.length == 6){
+			
+			try {
+				range = Integer.parseInt(argv[4]);
+			}
+			catch (NumberFormatException e) {
+				sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[4]);
+				return true;
+			}
+			
+			if (spawnDelay <= 0) {
+				sender.sendMessage("MusterCull: spawnDelay must be greater than zero.");
+				return true;
+			}
+			
+			try {
+				range = Integer.parseInt(argv[5]);
+			}
+			catch (NumberFormatException e) {
+				sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[5]);
+				return true;
+			}
+			
+			if (multiplayer <= 0) {
+				sender.sendMessage("MusterCull: multiplayer must be greater than zero.");
+				return true;
+			}
+		}
+		ConfigurationLimit configLimit = new ConfigurationLimit(limit, cullingType, range, spawnDelay, multiplayer);
 
 		this.pluginInstance.setLimit(entityType, configLimit);
 		

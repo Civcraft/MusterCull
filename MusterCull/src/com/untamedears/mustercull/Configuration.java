@@ -51,14 +51,32 @@ public class Configuration {
 	private boolean hasSpawnLimits = false;
 	
 	/**
+	 * Whether or not we have limits with CullTypes MERGE.
+	 * 
+	 * This is used by the MusterCull class to determine if the tick laborer
+	 * needs to be started.
+	 */
+	private boolean hasMergeLimits = false;
+	
+	/**
 	 * Number of ticks between calls to the chunk damage laborer.
 	 */
 	private long ticksBetweenDamage = 20L;
 	
 	/**
+	 * Number of ticks between calls to the chunk merge laborer.
+	 */
+	private long ticksBetweenMerge = 20L;
+	
+	/**
 	 * Number of entities to damage every time the damage laborer runs.
 	 */
 	private int damageCalls = 1;
+	
+	/**
+	 * Number of entities to damage every time the merge laborer runs.
+	 */
+	private int mergeCalls = 1;
 	
 	/**
 	 * Percent chance that a mob will be damaged when crowded.
@@ -68,12 +86,22 @@ public class Configuration {
 	/**
 	 * Hard number on mobs before the damage laborer cares to run.
 	 */
-	private int mobLimit = 1;
+	private int mobLimitDamage = 1;
 	
 	/**
-	 * Percentage of mobLimit each mob must be to trigger damage culling
+	 * Hard number on mobs before the damage laborer cares to run.
 	 */
-	private int mobLimitPercent = 1;
+	private int mobLimitMerge = 1;
+	
+	/**
+	 * Percentage of mobLimit each mob must be to trigger damage culling or merge culling.
+	 */
+	private int mobLimitPercentDamage = 1;
+	
+	/**
+	 * Percentage of mobLimit each mob must be to trigger merge culling or merge culling.
+	 */
+	private int mobLimitPercentMerge = 1;
 	
 	/**
 	 * Whether or not to notify when entities have been damaged.
@@ -149,9 +177,13 @@ public class Configuration {
 		this.setDamageChance(config.getInt("damage_chance"));
 		this.setDamageCalls(config.getInt("damage_count"));
 		this.setTicksBetweenDamage(config.getInt("ticks_between_damage"));
-		this.setMobLimit(config.getInt("mob_limit"));
-		this.setMobLimitPercent(config.getInt("mob_limit_percent"));
+		this.setMobLimitDamage(config.getInt("mob_limit_damage"));
+		this.setMobLimitPercentDamage(config.getInt("mob_limit_percent_damage"));
 		this.setDamageNotify(config.getBoolean("damage_notify"));
+		this.setMergeCalls(config.getInt("merge_count"));
+		this.setTicksBetweenMerge(config.getInt("ticks_between_merge"));
+		this.setMobLimitMerge(config.getInt("mob_limit_merge"));
+		this.setMobLimitPercentMerge(config.getInt("mob_limit_percent_merge"));
 		this.setMaximumMonsterCullAggression(config.getInt("max_monster_cull_aggression"));
 		this.setMinimumMonsterCullAggression(config.getInt("min_monster_cull_aggression"));
 		this.setMaximumMonsterCullPerPass(config.getInt("max_monster_cull_per_pass"));
@@ -178,7 +210,7 @@ public class Configuration {
 	            @SuppressWarnings("unchecked")
 	            LinkedHashMap<String, Object> map = (LinkedHashMap<String, Object>) obj;
 	            
-	            EntityType type = EntityType.fromName(map.get("type").toString().trim());
+	            EntityType type = EntityType.valueOf(map.get("type").toString().trim());
 
 	            if (type == null) {
 	            	this.pluginInstance.getLogger().warning("Unrecognized type '" + map.get("type").toString() + "' in configuration file.");
@@ -201,7 +233,17 @@ public class Configuration {
 	            //	range = 80;
 	            //}
 	            
-	            setLimit(type, new ConfigurationLimit(limit, culling, range));
+	            int spawnDelay = 0;
+	            if(map.get("spawnDelay") != null){
+	            	spawnDelay = (Integer)map.get("spawnDelay");
+	            }
+
+	            int multiplayer = 0;
+	            if(map.get("multiplayer") != null){
+	            	multiplayer = (Integer)map.get("multiplayer");
+	            }
+	            
+	            setLimit(type, new ConfigurationLimit(limit, culling, range, spawnDelay, multiplayer));
 	        }
 		}
 		
@@ -231,9 +273,13 @@ public class Configuration {
 		config.set("damage_chance", this.damageChance);
 		config.set("damage_count", this.damageCalls);
 		config.set("ticks_between_damage", this.ticksBetweenDamage);
-		config.set("mob_limit", this.mobLimit);
-		config.set("mob_limit_percent", this.mobLimitPercent);
+		config.set("mob_limit_damage", this.mobLimitDamage);
+		config.set("mob_limit_percent_damage", this.mobLimitPercentDamage);
 		config.set("damage_notify", this.damageNotify);
+		config.set("merge_count", this.mergeCalls);
+		config.set("ticks_between_merge", this.ticksBetweenMerge);
+		config.set("mob_limit_merge", this.mobLimitMerge);
+		config.set("mob_limit_percent_merge", this.mobLimitPercentMerge);
 		config.set("enable_monster_cull_to_spawn", this.enableMonsterCullToSpawn);
 		config.set("max_monster_cull_aggression", this.maximumMonsterCullAggression);
 		config.set("min_monster_cull_aggression", this.minimumMonsterCullAggression);
@@ -290,6 +336,9 @@ public class Configuration {
 		case SPAWN:
 		case SPAWNER:
 			this.hasSpawnLimits = true;
+			break;
+		case MERGE:
+			this.hasMergeLimits = true;
 			break;
 		}
 		
@@ -351,7 +400,14 @@ public class Configuration {
 		return hasDamageLimits;
 	}
 
-
+	/**
+	 * Returns whether or not we have limits with CullType MERGE.
+	 * @return true if there are any mobs with MERGE CullType, otherwise false.
+	 */
+	public boolean hasMergeLimits() {
+		return hasMergeLimits;
+	}
+	
 	/**
 	 * Returns the number of ticks between calls to the damage laborer.
 	 * @return Number of ticks between calls to the damage laborer.
@@ -429,25 +485,25 @@ public class Configuration {
 	 * Returns the limit on mobs before the damage laborer cares to act.
 	 * @return The limit on mobs before the damage laborer cares to act.
 	 */
-	public int getMobLimit() {
-		return this.mobLimit;
+	public int getMobLimitDamage() {
+		return this.mobLimitDamage;
 	}
 	
 	/**
 	 * Sets the limit on mobs before the damage laborer cares to act.
 	 * @param mobLimit The limit on mobs before the damage laborer cares to act.
 	 */
-	public void setMobLimit(int mobLimit) {
+	public void setMobLimitDamage(int mobLimitDamage) {
 
-		if (mobLimit < 0) {
-			this.pluginInstance.getLogger().info("Warning: mob_limit is < 0 when 0 is the limit. Pedantry.");
+		if (mobLimitDamage < 0) {
+			this.pluginInstance.getLogger().info("Warning: mob_limit_damage is < 0 when 0 is the limit. Pedantry.");
 		}
 		
-		if (mobLimit > 5000) {
-			this.pluginInstance.getLogger().info("Warning: mob_limit is > 5000. Damage laborer may never run.");
+		if (mobLimitDamage > 5000) {
+			this.pluginInstance.getLogger().info("Warning: mob_limit_damage is > 5000. Damage laborer may never run.");
 		}
 		
-		this.mobLimit = mobLimit;
+		this.mobLimitDamage = mobLimitDamage;
 		this.dirty = true;
 	}
 	
@@ -455,25 +511,125 @@ public class Configuration {
 	 * Returns the percent part per total before the damage laborer queues mobs.
 	 * @return The percent part per total before the damage laborer queues mobs.
 	 */
-	public int getMobLimitPercent() {
-		return this.mobLimitPercent;
+	public int getMobLimitPercentDamage() {
+		return this.mobLimitPercentDamage;
 	}
 	
 	/**
 	 * Sets the percent part per total before the damage laborer queues mobs.
 	 * @param mobLimitPercent The percent part per total before the damage laborer queues mobs.
 	 */
-	public void setMobLimitPercent(int mobLimitPercent) {
+	public void setMobLimitPercentDamage(int mobLimitPercentDamage) {
 
-		if (mobLimitPercent < 0) {
-			this.pluginInstance.getLogger().info("Warning: mob_limit_percent is < 0 when 0 is the limit. Pedantry.");
+		if (mobLimitPercentDamage < 0) {
+			this.pluginInstance.getLogger().info("Warning: mob_limit_percent_damage is < 0 when 0 is the limit. Pedantry.");
 		}
 		
-		if (mobLimitPercent > 100) {
-			this.pluginInstance.getLogger().info("Warning: mob_limit_percent is > 100 when 100 is the limit. Pedantry.");
+		if (mobLimitPercentDamage > 100) {
+			this.pluginInstance.getLogger().info("Warning: mob_limit_percent_damage is > 100 when 100 is the limit. Pedantry.");
 		}
 		
-		this.mobLimitPercent = mobLimitPercent;
+		this.mobLimitPercentDamage = mobLimitPercentDamage;
+		this.dirty = true;
+	}
+	
+	/**
+	 * Returns the number of ticks between calls to the damage laborer.
+	 * @return Number of ticks between calls to the damage laborer.
+	 */
+	public long getTicksBetweenMerge() {
+		return ticksBetweenMerge;
+	}
+
+	/**
+	 * Sets the number of ticks between calls to the merge laborer.
+	 * @param ticksBetweenDamage Number of ticks between calls to the merge laborer.
+	 */
+	public void setTicksBetweenMerge(long ticksBetweenMerge) {
+
+		this.pluginInstance.getLogger().info("MusterCull will merge something every " + ticksBetweenMerge + " ticks.");
+
+		if (ticksBetweenMerge < 20) {
+			this.pluginInstance.getLogger().info("Warning: ticks_between_merge is < 20, probably won't run that fast.");
+		}
+
+		this.ticksBetweenMerge = ticksBetweenMerge;
+		this.dirty = true;
+	}
+	
+	/**
+	 * Returns the number of entities to merge each time the laborer is called.
+	 * @return Number of entities to merge each time the laborer is called.
+	 */
+	public int getMergeCalls() {
+		return mergeCalls;
+	}
+	
+	/**
+	 * Sets the number of entities to take damage each time the laborer is called. 
+	 * @param damageCalls Number of entities to take damage each time the laborer is called.
+	 */
+	public void setMergeCalls(int mergeCalls) {
+		if (mergeCalls <= 0) {
+			this.pluginInstance.getLogger().info("Warning: merge_count is <= 0, possibly wasting cpu cycles.");
+		}
+		else if (mergeCalls > 5) {
+			this.pluginInstance.getLogger().info("Notice: merge_count is > 5, possibly killing performance.");
+		}
+		
+		this.mergeCalls = mergeCalls;
+		this.dirty = true;
+	}
+	
+	/**
+	 * Returns the limit on mobs before the merge laborer cares to act.
+	 * @return The limit on mobs before the merge laborer cares to act.
+	 */
+	public int getMobLimitMerge() {
+		return this.mobLimitMerge;
+	}
+	
+	/**
+	 * Sets the limit on mobs before the merge laborer cares to act.
+	 * @param mobLimit The limit on mobs before the merge laborer cares to act.
+	 */
+	public void setMobLimitMerge(int mobLimitMerge) {
+
+		if (mobLimitMerge < 0) {
+			this.pluginInstance.getLogger().info("Warning: mob_limit_merge is < 0 when 0 is the limit. Pedantry.");
+		}
+		
+		if (mobLimitMerge > 5000) {
+			this.pluginInstance.getLogger().info("Warning: mob_limit_merge is > 5000. Damage laborer may never run.");
+		}
+		
+		this.mobLimitMerge = mobLimitMerge;
+		this.dirty = true;
+	}
+	
+	/**
+	 * Returns the percent part per total before the merge laborer queues mobs.
+	 * @return The percent part per total before the merge laborer queues mobs.
+	 */
+	public int getMobLimitPercentMerge() {
+		return this.mobLimitPercentMerge;
+	}
+	
+	/**
+	 * Sets the percent part per total before the merge laborer queues mobs.
+	 * @param mobLimitPercent The percent part per total before the merge laborer queues mobs.
+	 */
+	public void setMobLimitPercentMerge(int mobLimitPercentMerge) {
+
+		if (mobLimitPercentMerge < 0) {
+			this.pluginInstance.getLogger().info("Warning: mob_limit_percent_merge is < 0 when 0 is the limit. Pedantry.");
+		}
+		
+		if (mobLimitPercentMerge > 100) {
+			this.pluginInstance.getLogger().info("Warning: mob_limit_percent_merge is > 100 when 100 is the limit. Pedantry.");
+		}
+		
+		this.mobLimitPercentMerge = mobLimitPercentMerge;
 		this.dirty = true;
 	}
 	

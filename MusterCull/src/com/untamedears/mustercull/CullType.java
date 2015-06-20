@@ -19,7 +19,12 @@ enum CullType {
 	/**
 	 * Uses damage on mobs in crowded chunks.
 	 */
-	DAMAGE;
+	DAMAGE,
+	
+	/**
+	 * Uses Bukkit events to merge creatures.
+	 */
+	MERGE;
 	
 	/**
 	 * Returns a CullType representing the name provided.

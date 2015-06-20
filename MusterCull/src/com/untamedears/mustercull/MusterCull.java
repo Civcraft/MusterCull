@@ -2,14 +2,17 @@ package com.untamedears.mustercull;
 
 import org.bukkit.World;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.FileHandler;
 import java.util.logging.Handler;
-import java.util.logging.Level;
 
 /**
  * This is the main class for the MusterCull Bukkit plug-in.
@@ -21,28 +24,42 @@ public class MusterCull extends JavaPlugin {
 	/**
 	 * Holds a list of entities to monitor.
 	 */
-	private Stack<EntityLimitPair> knownEntities = new Stack<EntityLimitPair>();
+	private Stack<EntityLimitPair> knownEntitiesDamage = new Stack<EntityLimitPair>();
+	private Stack<EntityLimitPair> knownEntitiesMerge = new Stack<EntityLimitPair>();
 	
 	/**
 	 * Holds a count of entities remaining for the status checker
 	 */
-	private int knownEntitiesRemaining = 0;
+	private int knownEntitiesRemainingDamage = 0;
+	private int knownEntitiesRemainingMerge = 0;
 	
 	/**
 	 * Flags whether or not we should clear knownEntities list next time around
 	 */
-	private boolean clearKnownEntities = false;
+	private boolean clearKnownEntitiesDamage = false;
+	private boolean clearKnownEntitiesMerge = false;
 	
 	/**
 	 * Whether or not we are returning a new entity to process (concurrency protection) 
 	 */
-	private boolean returningKnownEntity = false;
+	private boolean returningKnownEntityDamage = false;
+	private boolean returningKnownEntityMerge = false;
 
 	/**
 	 * Buffer for keeping track of the parallel Laborer task for the DAMAGE method.
 	 */
 	private int damageLaborTask = -1;
 
+	/**
+	 * Buffer for keeping track of the parallel Laborer task for the MERGE method.
+	 */
+	private int mergeLaborTask = -1;
+	
+	/**
+	 * Buffer for keeping track of the parallel Laborer task for the MERGE method.
+	 */
+	private int RemoveDespawnedMergedEntitiesTask = -1;
+	
     /**
      * Buffer for keeping track of the parallel Laborer task for the HARDCAP method.
      */
@@ -65,6 +82,11 @@ public class MusterCull extends JavaPlugin {
     
     private HardCapLaborer hardCapLaborerRef;
 	
+    /**
+     * A map containing all the merged entities.
+     */
+    private ConcurrentHashMap<Entity, Integer> MergedEntities = new ConcurrentHashMap<Entity, Integer>();
+    
 	/**
 	 * Called when the plug-in is enabled by Bukkit.
 	 */
@@ -77,6 +99,18 @@ public class MusterCull extends JavaPlugin {
 
 		if (this.damageLaborTask == -1) {
 			getLogger().severe("Failed to start MusterCull DAMAGE laborer.");
+		}
+		
+		this.mergeLaborTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new MergeLaborer(this), this.config.getTicksBetweenMerge(), this.config.getTicksBetweenMerge());
+		
+		if (this.mergeLaborTask == -1) {
+			getLogger().severe("Failed to start MusterCull MERGE laborer.");
+		}
+		
+		this.RemoveDespawnedMergedEntitiesTask = getServer().getScheduler().scheduleSyncRepeatingTask(this, new RemoveDespawnedMergedEntitiesLaborer(this), this.config.getTicksBetweenMerge(), this.config.getTicksBetweenMerge());
+		
+		if (this.RemoveDespawnedMergedEntitiesTask == -1) {
+			getLogger().severe("Failed to start MusterCull RemoveDespawnedMergedEntitieslaborer.");
 		}
 		
 		hardCapLaborerRef = new HardCapLaborer(this);
@@ -135,7 +169,15 @@ public class MusterCull extends JavaPlugin {
             getServer().getScheduler().cancelTask(hardCapLaborTask);
             hardCapLaborerRef = null;
         }
-
+        
+        if (this.mergeLaborTask != -1) {
+            getServer().getScheduler().cancelTask(mergeLaborTask);
+        }
+        
+        if (this.RemoveDespawnedMergedEntitiesTask != -1) {
+            getServer().getScheduler().cancelTask(RemoveDespawnedMergedEntitiesTask);
+        }
+        
     	this.config.save();
     }
     
@@ -189,11 +231,19 @@ public class MusterCull extends JavaPlugin {
 	}
 	
 	/**
-	 * Returns whether or not we have limits with CullType SPAWN.
-	 * @return Whether or not we have limits with CullType SPAWN.
+	 * Returns whether or not we have limits with CullType SPAWN or SPAWNER.
+	 * @return Whether or not we have limits with CullType SPAWN or SPAWNER.
 	 */
 	public boolean hasSpawnLimits() {
 		return this.config.hasSpawnLimits();
+	}
+	
+	/**
+	 * Returns whether or not we have limits with CullType MERGE.
+	 * @return Whether or not we have limits with CullType MERGE.
+	 */
+	public boolean hasMergeLimits() {
+		return this.config.hasMergeLimits();
 	}
 	
 	/**
@@ -346,14 +396,14 @@ public class MusterCull extends JavaPlugin {
 	 * Returns the next entity for monitoring.
 	 * @return A reference to an EntityLimitPair.
 	 */
-	public EntityLimitPair getNextEntity() {
+	public EntityLimitPair getNextEntityDamage() {
 		
-		synchronized(this.knownEntities) {
-			if (this.returningKnownEntity) {
+		synchronized(this.knownEntitiesDamage) {
+			if (this.returningKnownEntityDamage) {
 				return null;
 			}
 			
-			this.returningKnownEntity = true;
+			this.returningKnownEntityDamage = true;
 		}
 		
 		EntityLimitPair entityLimitPair = null;
@@ -361,25 +411,24 @@ public class MusterCull extends JavaPlugin {
 		boolean clearEntities = false;
 		
 		synchronized(this) {
-			clearEntities = this.clearKnownEntities;
-			this.clearKnownEntities = false;
+			clearEntities = this.clearKnownEntitiesDamage;
+			this.clearKnownEntitiesDamage = false;
 		}
 		
-		if (this.knownEntitiesRemaining <= 0 || clearEntities) {
+		if (this.knownEntitiesRemainingDamage <= 0 || clearEntities) {
 			
 			if (clearEntities) {
 				getLogger().info("Forcing entity list to clear...");
 			}
 			
-			this.knownEntitiesRemaining = 0;
-			this.knownEntities.clear();
+			this.knownEntitiesRemainingDamage = 0;
+			this.knownEntitiesDamage.clear();
 			
 			Map<EntityType, List<Entity>> sortedEntities = new HashMap<EntityType, List<Entity>>();
 			int totalEntities = 0;
-			
 			for (World world : getServer().getWorlds()) {
 				
-				List<Entity> entities = world.getEntities();
+				List<LivingEntity> entities = world.getLivingEntities();
 				totalEntities += entities.size();
 				
 				for (Entity entity : entities) {
@@ -394,14 +443,14 @@ public class MusterCull extends JavaPlugin {
 				}
 			}
 			
-			if (totalEntities < this.config.getMobLimit()) {
-				synchronized(this.knownEntities) {
-					this.returningKnownEntity = false;
+			if (totalEntities < this.config.getMobLimitDamage()) {
+				synchronized(this.knownEntitiesDamage) {
+					this.returningKnownEntityDamage = false;
 					return null;
 				}
 			}
 			
-			float mobLimitPercent = ((float)this.config.getMobLimitPercent()) / 100.0f;
+			float LimitPercent = ((float)this.config.getMobLimitPercentDamage()) / 100.0f;
 			
 			Stack<EntityLimitPair> newEntities = new Stack<EntityLimitPair>();
 			
@@ -411,26 +460,114 @@ public class MusterCull extends JavaPlugin {
 				if (limit == null) {
 					continue;
 				}
-				
 				List<Entity> values = entries.getValue();
 				
-				if (((float)values.size()) / ((float)totalEntities) >= mobLimitPercent) {
+				if (((float)values.size()) / ((float)totalEntities) >= LimitPercent) {
 					for (Entity entity : entries.getValue()) {
 						newEntities.push(new EntityLimitPair(entity, limit));
 					}
 				}
 			}
 			
-			this.knownEntities = newEntities;
-			this.knownEntitiesRemaining = this.knownEntities.size();
+			this.knownEntitiesDamage = newEntities;
+			this.knownEntitiesRemainingDamage = this.knownEntitiesDamage.size();
 		}
 		else {
-			entityLimitPair = this.knownEntities.pop();
-			this.knownEntitiesRemaining--;
+			entityLimitPair = this.knownEntitiesDamage.pop();
+			this.knownEntitiesRemainingDamage--;
 		}
+		synchronized(this.knownEntitiesDamage) {
+			this.returningKnownEntityDamage = false;
+			return entityLimitPair;
+		}
+	}
 	
-		synchronized(this.knownEntities) {
-			this.returningKnownEntity = false;
+	/**
+	 * Returns the next entity for monitoring.
+	 * @return A reference to an EntityLimitPair.
+	 */
+	public EntityLimitPair getNextEntityMerge() {
+		
+		synchronized(this.knownEntitiesMerge) {
+			if (this.returningKnownEntityMerge) {
+				return null;
+			}
+			
+			this.returningKnownEntityMerge = true;
+		}
+		
+		EntityLimitPair entityLimitPair = null;
+		
+		boolean clearEntities = false;
+		
+		synchronized(this) {
+			clearEntities = this.clearKnownEntitiesMerge;
+			this.clearKnownEntitiesMerge = false;
+		}
+		
+		if (this.knownEntitiesRemainingMerge <= 0 || clearEntities) {
+			
+			if (clearEntities) {
+				getLogger().info("Forcing entity list to clear...");
+			}
+			
+			this.knownEntitiesRemainingMerge = 0;
+			this.knownEntitiesMerge.clear();
+			
+			Map<EntityType, List<Entity>> sortedEntities = new HashMap<EntityType, List<Entity>>();
+			int totalEntities = 0;
+			for (World world : getServer().getWorlds()) {
+				
+				List<LivingEntity> entities = world.getLivingEntities();
+				totalEntities += entities.size();
+				
+				for (Entity entity : entities) {
+					List<Entity> knownEntities = sortedEntities.get(entity.getType());
+					
+					if (knownEntities == null) {
+						knownEntities = new ArrayList<Entity>();
+						sortedEntities.put(entity.getType(), knownEntities);
+					}
+					
+					knownEntities.add(entity);
+				}
+			}
+			
+			if (totalEntities < this.config.getMobLimitMerge()) {
+				synchronized(this.knownEntitiesMerge) {
+					this.returningKnownEntityMerge = false;
+					return null;
+				}
+			}
+			
+			float LimitPercent = ((float)this.config.getMobLimitPercentMerge()) / 100.0f;
+			
+			Stack<EntityLimitPair> newEntities = new Stack<EntityLimitPair>();
+			
+			for (Map.Entry<EntityType, List<Entity>> entries : sortedEntities.entrySet()) {
+				ConfigurationLimit limit = this.getLimit(entries.getKey(), CullType.MERGE);
+				
+				if (limit == null) {
+					continue;
+				}
+				List<Entity> values = entries.getValue();
+				
+				if (((float)values.size()) / ((float)totalEntities) >= LimitPercent) {
+					for (Entity entity : entries.getValue()) {
+						newEntities.push(new EntityLimitPair(entity, limit));
+					}
+				}
+			}
+			
+			this.knownEntitiesMerge = newEntities;
+			this.knownEntitiesRemainingMerge = this.knownEntitiesMerge.size();
+		}
+		else {
+			entityLimitPair = this.knownEntitiesMerge.pop();
+			this.knownEntitiesRemainingMerge--;
+		}
+		synchronized(this.knownEntitiesMerge) {
+			this.returningKnownEntityMerge = false;
 			return entityLimitPair;
 		}
 	}
@@ -487,6 +624,22 @@ public class MusterCull extends JavaPlugin {
 	}
 	
 	/**
+	 * Returns the number of entities to merge each time the laborer is called.
+	 * @return Number of entities to merge each time the laborer is called.
+	 */
+	public int getMergeCalls() {
+		return this.config.getMergeCalls();
+	}
+	
+	/**
+	 * Sets the number of entities to merge each time the laborer is called.
+	 * @param damageCalls Number of entities to merge each time the laborer is called.
+	 */
+	public void setMergeCalls(int mergeCalls) {
+		this.config.setMergeCalls(mergeCalls);
+	}
+	
+	/**
 	 * Returns the amount of damage to apply to a crowded mob.
 	 * @return The amount of damage to apply to a crowded mob. 
 	 */
@@ -503,23 +656,41 @@ public class MusterCull extends JavaPlugin {
 	}
 	
 	/**
-	 * Returns the number of entities left to check for damage in this round.
+	 * Returns the number of entities left to check in this round.
 	 * @return The size of the stack of Bukkit entities left to check.
 	 */
-	public int getRemainingDamageEntities() {
-		return this.knownEntitiesRemaining;
+	public int getRemainingEntitiesDamage() {
+		return this.knownEntitiesRemainingDamage;
 	}
 	
 	/**
-	 * Clears the entities that may be waiting for damage.
+	 * Clears the entities that may be waiting.
 	 */
-	public void clearRemainingDamageEntities() {
+	public void clearRemainingEntitiesDamage() {
 		getLogger().info("Flagging damage list for clearing...");
 		synchronized(this) {
-			this.clearKnownEntities = true;
+			this.clearKnownEntitiesDamage = true;
 		}
 	}
 
+	/**
+	 * Returns the number of entities left to check in this round.
+	 * @return The size of the stack of Bukkit entities left to check.
+	 */
+	public int getRemainingEntitiesMerge() {
+		return this.knownEntitiesRemainingMerge;
+	}
+	
+	/**
+	 * Clears the entities that may be waiting.
+	 */
+	public void clearRemainingEntitiesMerge() {
+		getLogger().info("Flagging damage list for clearing...");
+		synchronized(this) {
+			this.clearKnownEntitiesMerge = true;
+		}
+	}
+	
 	/**
 	 * Returns nearby entities to an entity.
 	 * @param entity
@@ -699,6 +870,145 @@ public class MusterCull extends JavaPlugin {
 		}
 		
 		return false;
+	}
+
+	/**
+	 * Performs configured merging operations on the given entity.
+	 * @param entity The bukkit entity to perform culling operations for.
+	 * @param limit The limit to run for this entity.
+	 * @return Whether the entity needs to be spawn.
+	 */
+	public boolean mergeEntity(Entity entity, ConfigurationLimit limit) {
+		
+		if (limit == null) {
+			return false;
+		}
+		
+		// Loop through entities in range and count similar entities.
+		int count = 0;
+		Entity e = null;
+		
+		for (Entity otherEntity : getNearbyEntities(entity, limit.getRange(), entity.getType().getEntityClass())) {
+			if (0 == otherEntity.getType().compareTo(entity.getType())&&MergedEntities.containsKey(otherEntity)) {
+				count += 1;
+				
+				// If we've reached a limit for this entity, merge the entity into a living entity.
+				if (count >= limit.getLimit()) {
+					e = addMergedEntityToMap(entity, limit, false, true);
+					break;
+				}
+			}
+		}
+		
+		// if we haven't reached the limit, merge the entity into a dead entity. 
+		if(count < limit.getLimit()) {
+			e = addMergedEntityToMap(entity, limit, true, true);
+		}
+		
+		// if we have reached the spawn limit, spawn the entity.
+		if(e != null && e == entity && MergedEntities.get(e) == limit.getSpawnDelay()){
+			getLogger().info("A merged entity was spawned " + e.toString() + "multiplayer: " + MergedEntities.get(e));
+			return false;
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Merging an entity into other entities by adding it to the map.
+	 * @param entity The bukkit entity to merge.
+	 * @param limit The limit to run for this entity.
+	 * @param toDeadEntity should the entity be merged into a dead entity or a living entity.
+	 * @param newMergedEntity should a new merged entity be created if there are no other merged entities near by.
+	 * @return The merged entity.
+	 */
+	public Entity addMergedEntityToMap(Entity entity, ConfigurationLimit limit, boolean toDeadEntity, boolean newMergedEntity){
+		
+		if(MergedEntities.containsKey(entity)){
+			return null;
+		}
+		
+		int distance = limit.getRange();
+		Entry<Entity, Integer> min = null;
+		Entity e = null;
+		// Find the entity with the lowest multiplayer.
+		for(Entry<Entity, Integer> entry: MergedEntities.entrySet()){
+			e = entry.getKey();
+			if(0 == e.getType().compareTo(entity.getType()) && e.getWorld().equals(entity.getWorld()) && e.isDead()==toDeadEntity){
+				double distanceFromEntity = entity.getLocation().distance(e.getLocation());
+				if (distanceFromEntity > distance)
+					continue;
+				if (min == null || min.getValue() > entry.getValue()) {
+				        min = entry;
+				}
+			}
+		}
+		
+		if(min != null){
+			e = min.getKey();
+			if(e.isDead()){
+				MergedEntities.put(entity, MergedEntities.get(e)+limit.getMultiplayery());
+				MergedEntities.remove(e);
+				getLogger().info("entity " + entity.toString() + " \nwas merged into a dead entity " + e.toString() + " at " + entity.getLocation().toString() + "\nmultiplayer: " + MergedEntities.get(entity));
+				return entity;
+			} else {
+				MergedEntities.put(e, MergedEntities.get(e)+limit.getMultiplayery());
+				getLogger().info("entity " + entity.toString() + " \nwas merged into a living entity " + e.toString() + " at " + e.getLocation().toString() + "\nmultiplayer: " + MergedEntities.get(e));
+				return e;
+			}
+		}
+		
+		if(newMergedEntity){
+			MergedEntities.put(entity, 1);
+			getLogger().info("A new entity was added to the map " + entity.toString() + " at " + entity.getLocation().toString());
+			return entity;
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Adjusting the drops of a merged entity.
+	 * @param liveMob The mob.
+	 * @param drops The drops of the mob.
+	 */
+	public void AdjustDropsOfMergedEntity(LivingEntity liveMob, List<ItemStack> drops){
+		if(MergedEntities.containsKey(liveMob)){
+			
+			EntityEquipment mobEquipment = liveMob.getEquipment();
+			ItemStack[] eeItem = mobEquipment.getArmorContents();
+			
+			for (ItemStack item : drops) {
+				boolean armor = false;
+				boolean hand = false;
+				for(ItemStack i : eeItem){
+					if(i.isSimilar(item)){
+						armor = true;
+						item.setAmount(1);
+					}
+				}
+				
+				if(item.isSimilar(mobEquipment.getItemInHand())){
+					hand = true;
+					item.setAmount(1);
+				}
+
+				if(!hand && !armor){
+					getLogger().info(item.getAmount()+"");
+					Integer amount = item.getAmount() * MergedEntities.get(liveMob);
+					item.setAmount(amount);
+				}
+				
+			}
+		}
+	}
+	
+	public ConcurrentHashMap<Entity, Integer> getMergedEntities() {
+		return MergedEntities;
+	}
+
+	public void setMergedEntities(ConcurrentHashMap<Entity, Integer> mergedEntities) {
+		MergedEntities = mergedEntities;
 	}
 
 	/**
