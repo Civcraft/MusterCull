@@ -1,4 +1,4 @@
-package com.untamedears.mustercull;
+package com.untamedears.mustercull.laborers;
 
 import java.awt.Point;
 import java.util.ArrayList;
@@ -25,6 +25,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Skeleton.SkeletonType;
 import org.bukkit.entity.Wither;
+
+import com.untamedears.mustercull.MusterCull;
+import com.untamedears.mustercull.culltypes.GlobalCullCullingStrategyType;
+import com.untamedears.mustercull.culltypes.GlobalCullType;
 
 /**
  * This class performs damage to mobs using the DAMAGE CullType.

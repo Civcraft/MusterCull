@@ -44,8 +44,11 @@ commands:
     usage: |
       /mculllimit LIMITTYPE ENTITYTYPE LIMIT RANGE
       Where:
-      * LIMITTYPE is either SPAWN or DAMAGE.
+      * LIMITTYPE is either SPAWN, DAMAGE or MERGE.
       * ENTITYTYPE is the Bukkit EntityType to modify.
+      * LIMIT is the number of entities allowed for this limit
+      * SPAWNDELAY is the number of entities that need to spawn before the entity will actually spawn.
+      * LIMIT is the number of entities allowed for this limit
       * LIMIT is the number of entities allowed for this limit
       ** TIP: use /mcullentities for a list.
       * RANGE is the effective distance of the limit.

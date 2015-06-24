@@ -1,6 +1,6 @@
-package com.untamedears.mustercull;
+package com.untamedears.mustercull.culltypes;
 
-enum GlobalCullCullingStrategyType {
+public enum GlobalCullCullingStrategyType {
 	RANDOM
 	, PRIORITY;
 	

@@ -1,9 +1,14 @@
-package com.untamedears.mustercull;
+package com.untamedears.mustercull.laborers;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.bukkit.entity.Entity;
+
+import com.untamedears.mustercull.EntityLimitPair;
+import com.untamedears.mustercull.MusterCull;
+import com.untamedears.mustercull.configurations.ConfigurationLimit;
+import com.untamedears.mustercull.culltypes.CullType;
 
 public class MergeLaborer extends Laborer {
 

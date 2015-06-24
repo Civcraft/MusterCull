@@ -1,6 +1,10 @@
-package com.untamedears.mustercull;
+package com.untamedears.mustercull.laborers;
 
 import org.bukkit.entity.Entity;
+
+import com.untamedears.mustercull.MusterCull;
+import com.untamedears.mustercull.configurations.ConfigurationLimit;
+import com.untamedears.mustercull.culltypes.CullType;
 
 public class RemoveDespawnedMergedEntitiesLaborer extends Laborer{
 	

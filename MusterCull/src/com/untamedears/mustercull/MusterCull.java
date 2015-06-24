@@ -6,13 +6,23 @@ import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
+import com.untamedears.mustercull.command.Commander;
+import com.untamedears.mustercull.configurations.Configuration;
+import com.untamedears.mustercull.configurations.ConfigurationLimit;
+import com.untamedears.mustercull.culltypes.CullType;
+import com.untamedears.mustercull.culltypes.GlobalCullCullingStrategyType;
+import com.untamedears.mustercull.culltypes.GlobalCullType;
+import com.untamedears.mustercull.laborers.DamageLaborer;
+import com.untamedears.mustercull.laborers.HardCapLaborer;
+import com.untamedears.mustercull.laborers.MergeLaborer;
+import com.untamedears.mustercull.laborers.RemoveDespawnedMergedEntitiesLaborer;
+import com.untamedears.mustercull.listeners.EntityListener;
+import com.untamedears.mustercull.statusitem.StatusItem;
+import com.untamedears.mustercull.statusitem.StatusItemComparator;
+
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
 
 /**
  * This is the main class for the MusterCull Bukkit plug-in.
@@ -85,7 +95,7 @@ public class MusterCull extends JavaPlugin {
     /**
      * A map containing all the merged entities.
      */
-    private ConcurrentHashMap<Entity, Integer> MergedEntities = new ConcurrentHashMap<Entity, Integer>();
+    private ConcurrentHashMap<Entity, Double> MergedEntities = new ConcurrentHashMap<Entity, Double>();
     
 	/**
 	 * Called when the plug-in is enabled by Bukkit.
@@ -128,24 +138,7 @@ public class MusterCull extends JavaPlugin {
 			getCommand(command).setExecutor(commander);
 		}
 		
-		logging();
     }
-	
-	public void logging() {
-		try {
-			Handler fileHandler = new FileHandler(getDataFolder() + File.separator + "MusterCullLog.log.lck", true);
-			getLogger().addHandler(fileHandler);
-		} catch (SecurityException | IOException e) {
-			System.out.println("Creating directory");
-			getDataFolder().mkdirs();
-			try {
-				Handler fileHandler = new FileHandler(getDataFolder() + File.separator + "MusterCullLog.log.lck", true);
-				getLogger().addHandler(fileHandler);
-			} catch (IOException e2) {
-                throw new RuntimeException("Failed to load log file", e);
-			}
-		}
-	}
 	
 	public float getHardCapCullingPriorityStrategyPenaltyMobPercent()
 	{
@@ -907,7 +900,7 @@ public class MusterCull extends JavaPlugin {
 		
 		// if we have reached the spawn limit, spawn the entity.
 		if(e != null && e == entity && MergedEntities.get(e) == limit.getSpawnDelay()){
-			getLogger().info("A merged entity was spawned " + e.toString() + "multiplayer: " + MergedEntities.get(e));
+			getLogger().info("A merged entity was spawned " + e.toString() + "multiplier: " + MergedEntities.get(e));
 			return false;
 		}
 		
@@ -929,10 +922,10 @@ public class MusterCull extends JavaPlugin {
 		}
 		
 		int distance = limit.getRange();
-		Entry<Entity, Integer> min = null;
+		Entry<Entity, Double> min = null;
 		Entity e = null;
-		// Find the entity with the lowest multiplayer.
-		for(Entry<Entity, Integer> entry: MergedEntities.entrySet()){
+		// Find the entity with the lowest Multiplier.
+		for(Entry<Entity, Double> entry: MergedEntities.entrySet()){
 			e = entry.getKey();
 			if(0 == e.getType().compareTo(entity.getType()) && e.getWorld().equals(entity.getWorld()) && e.isDead()==toDeadEntity){
 				double distanceFromEntity = entity.getLocation().distance(e.getLocation());
@@ -947,24 +940,49 @@ public class MusterCull extends JavaPlugin {
 		if(min != null){
 			e = min.getKey();
 			if(e.isDead()){
-				MergedEntities.put(entity, MergedEntities.get(e)+limit.getMultiplayery());
+				MergedEntities.put(entity, MergedEntities.get(e)+limit.getMultiplier());
 				MergedEntities.remove(e);
-				getLogger().info("entity " + entity.toString() + " \nwas merged into a dead entity " + e.toString() + " at " + entity.getLocation().toString() + "\nmultiplayer: " + MergedEntities.get(entity));
+				getLogger().info("entity " + entity.toString() + " was merged into a dead entity " + e.toString() + " at " + entity.getLocation().toString() + " multiplier: " + MergedEntities.get(entity));
 				return entity;
 			} else {
-				MergedEntities.put(e, MergedEntities.get(e)+limit.getMultiplayery());
-				getLogger().info("entity " + entity.toString() + " \nwas merged into a living entity " + e.toString() + " at " + e.getLocation().toString() + "\nmultiplayer: " + MergedEntities.get(e));
+				MergedEntities.put(e, MergedEntities.get(e)+limit.getMultiplier());
+				getLogger().info("entity " + entity.toString() + " was merged into a living entity " + e.toString() + " at " + e.getLocation().toString() + " multiplier: " + MergedEntities.get(e));
 				return e;
 			}
 		}
 		
 		if(newMergedEntity){
-			MergedEntities.put(entity, 1);
+			MergedEntities.put(entity, 1.0);
 			getLogger().info("A new entity was added to the map " + entity.toString() + " at " + entity.getLocation().toString());
 			return entity;
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * Adjusting the drops of a merged entity.
+	 * @param entity 
+	 * @return The multiplier that should apply to the drops of the entity.
+	 */
+	public int getMultiplier(Entity entity){
+		if(MergedEntities.containsKey(entity)){
+			ConfigurationLimit limit = getLimit(entity.getType(), CullType.MERGE);
+			
+			if(limit == null){
+				return 0;
+			}
+			
+			int multiplier = (int) Math.round(MergedEntities.get(entity));
+			
+			//If the multiplier is above the limit set it to the limit.
+			if(multiplier > limit.getMultiplierLimit()){
+				multiplier = (int) limit.getMultiplierLimit();
+			}
+			
+			return multiplier;
+		}
+		return 0;
 	}
 	
 	/**
@@ -977,6 +995,8 @@ public class MusterCull extends JavaPlugin {
 			
 			EntityEquipment mobEquipment = liveMob.getEquipment();
 			ItemStack[] eeItem = mobEquipment.getArmorContents();
+			
+			int multiplier = getMultiplier(liveMob);
 			
 			for (ItemStack item : drops) {
 				boolean armor = false;
@@ -994,8 +1014,7 @@ public class MusterCull extends JavaPlugin {
 				}
 
 				if(!hand && !armor){
-					getLogger().info(item.getAmount()+"");
-					Integer amount = item.getAmount() * MergedEntities.get(liveMob);
+					Integer amount = item.getAmount() * multiplier;
 					item.setAmount(amount);
 				}
 				
@@ -1003,11 +1022,11 @@ public class MusterCull extends JavaPlugin {
 		}
 	}
 	
-	public ConcurrentHashMap<Entity, Integer> getMergedEntities() {
+	public ConcurrentHashMap<Entity, Double> getMergedEntities() {
 		return MergedEntities;
 	}
 
-	public void setMergedEntities(ConcurrentHashMap<Entity, Integer> mergedEntities) {
+	public void setMergedEntities(ConcurrentHashMap<Entity, Double> mergedEntities) {
 		MergedEntities = mergedEntities;
 	}
 
