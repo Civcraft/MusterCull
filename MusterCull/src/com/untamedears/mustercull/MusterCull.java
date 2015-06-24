@@ -17,6 +17,7 @@ import com.untamedears.mustercull.laborers.HardCapLaborer;
 import com.untamedears.mustercull.laborers.MergeLaborer;
 import com.untamedears.mustercull.laborers.RemoveDespawnedMergedEntitiesLaborer;
 import com.untamedears.mustercull.listeners.EntityListener;
+import com.untamedears.mustercull.listeners.ShearEntityListener;
 import com.untamedears.mustercull.statusitem.StatusItem;
 import com.untamedears.mustercull.statusitem.StatusItemComparator;
 
@@ -132,6 +133,7 @@ public class MusterCull extends JavaPlugin {
         }
 
         getServer().getPluginManager().registerEvents(new EntityListener(this), this);
+        getServer().getPluginManager().registerEvents(new ShearEntityListener(this), this);
 		Commander commander = new Commander(this);
 		
 		for (String command : getDescription().getCommands().keySet()) {

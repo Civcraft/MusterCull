@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -242,15 +241,25 @@ public class Configuration {
 	            if(map.get("spawnDelay") != null){
 	            	spawnDelay = (Integer)map.get("spawnDelay");
 	            }
-
+	            
+	            
+	            
 	            double multiplier = 0;
 	            if(map.get("multiplier") != null){
-	            	multiplier = (Double)map.get("multiplier");
+	            	if(map.get("multiplier") instanceof Double) {
+	            		multiplier = (double)map.get("multiplier");
+	            	} else {
+	            		multiplier = (int)map.get("multiplier");
+	            	}
 	            }
 	            
 	            double multiplierLimit = 0;
 	            if(map.get("multiplierLimit") != null){
-	            	multiplier = (Double)map.get("multiplierLimit");
+	            	if(map.get("multiplierLimit") instanceof Double) {
+	            		multiplierLimit = (double)map.get("multiplierLimit");
+	            	} else {
+	            		multiplierLimit = (int)map.get("multiplierLimit");
+	            	}
 	            }
 	            
 	            setLimit(type, new ConfigurationLimit(limit, culling, range, spawnDelay, multiplier, multiplierLimit));
@@ -732,9 +741,11 @@ public class Configuration {
      */
     public void setHardCapCullingStrategy(String cullingStrategy) {
     	
-    	cullingStrategy = cullingStrategy.toUpperCase();
+    	if(cullingStrategy != null){
+    		cullingStrategy = cullingStrategy.toUpperCase();
+    	}
     	
-    	if (!cullingStrategy.equals("RANDOM") && !cullingStrategy.equals("PRIORITY"))
+    	if (cullingStrategy == null || !cullingStrategy.equals("RANDOM") && !cullingStrategy.equals("PRIORITY"))
     	{
             pluginInstance.getLogger().warning("hard_cap_culling_strategy not an allowed value (needs RANDOM or PRIORITY - has " + cullingStrategy + ".");
             return;
