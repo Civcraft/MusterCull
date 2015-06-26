@@ -88,7 +88,7 @@ public class EntityListener extends Listener {
 		if(this.getPluginInstance().getMergedEntities().get(event.getEntity())!=null){
 			this.getPluginInstance().AdjustDropsOfMergedEntity(event.getEntity(), event.getDrops());
 			int multiplier = this.getPluginInstance().getMultiplier(event.getEntity());
-			this.getPluginInstance().getLogger().info("A merged entity was killed" + event.getEntity().toString() + " at " + event.getEntity().getLocation().toString() + " multiplier: " + multiplier);
+			this.getPluginInstance().getLogger().info("A merged entity was killed " + event.getEntity().toString() + " at " + event.getEntity().getLocation().toString() + " multiplier: " + multiplier);
 			this.getPluginInstance().getMergedEntities().remove(event.getEntity());
 		}
 	}

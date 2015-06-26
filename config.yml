@@ -163,6 +163,13 @@ limits:
   culling: SPAWNER
   limit: 8
   range: 144
+- type: PIG_ZOMBIE
+  culling: MERGE
+  limit: 4
+  range: 144
+  spawnDelay: 10
+  multiplier: 1
+  multiplierLimit: 20
 - type: HORSE
   culling: DAMAGE
   limit: 15

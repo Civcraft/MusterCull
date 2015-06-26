@@ -329,7 +329,7 @@ public class Commander implements CommandExecutor {
 			return true;
 		}
 		
-		EntityType entityType = EntityType.fromName(argv[1]);
+		EntityType entityType = EntityType.valueOf(argv[1]);
 		
 		if (entityType == null) {
 			sender.sendMessage("MusterCull: invalid entity type: " + argv[1] + " (see /mcullentities)");
@@ -471,7 +471,7 @@ public class Commander implements CommandExecutor {
 		
 		for (EntityType entityType : EntityType.values()) {
 			
-			if (entityType.getName() == "null") {
+			if (entityType.name() == "null") {
 				continue;
 			}
 			
@@ -480,7 +480,7 @@ public class Commander implements CommandExecutor {
 					message.append(", ");
 				}
 				
-				message.append(entityType.getName());
+				message.append(entityType.name());
 				
 				if (string_count++ > 4) {
 					sender.sendMessage("MusterCull Entity Types: " + message.toString());
@@ -554,7 +554,7 @@ public class Commander implements CommandExecutor {
 			return false;
 		}
 		
-		EntityType entityType = EntityType.fromName(argv[0]);
+		EntityType entityType = EntityType.valueOf(argv[0]);
 		
 		if (entityType == null) {
 			sender.sendMessage("MusterCull: invalid entity type: " + argv[0] + " (see /mcullentities)");
@@ -629,7 +629,7 @@ public class Commander implements CommandExecutor {
 			return false;
 		}
 		
-		EntityType entityType = EntityType.fromName(argv[0]);
+		EntityType entityType = EntityType.valueOf(argv[0]);
 		
 		if (entityType == null) {
 			sender.sendMessage("MusterCull: invalid entity type: " + argv[0] + " (see /mcullentities)");

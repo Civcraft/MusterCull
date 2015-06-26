@@ -902,7 +902,7 @@ public class MusterCull extends JavaPlugin {
 		
 		// if we have reached the spawn limit, spawn the entity.
 		if(e != null && e == entity && MergedEntities.get(e) == limit.getSpawnDelay()){
-			getLogger().info("A merged entity was spawned " + e.toString() + "multiplier: " + MergedEntities.get(e));
+			getLogger().info("A merged entity was spawned " + e.toString() + " at " + e.getLocation().toString() + " multiplier: " + getMultiplier(e));
 			return false;
 		}
 		
@@ -942,13 +942,13 @@ public class MusterCull extends JavaPlugin {
 		if(min != null){
 			e = min.getKey();
 			if(e.isDead()){
-				MergedEntities.put(entity, MergedEntities.get(e)+limit.getMultiplier());
+				MergedEntities.put(entity, MergedEntities.get(e) + 1);
 				MergedEntities.remove(e);
-				getLogger().info("entity " + entity.toString() + " was merged into a dead entity " + e.toString() + " at " + entity.getLocation().toString() + " multiplier: " + MergedEntities.get(entity));
+				getLogger().info("entity " + entity.toString() + " was merged into a dead entity " + e.toString() + " at " + entity.getLocation().toString() + " multiplier: " + getMultiplier(entity));
 				return entity;
 			} else {
-				MergedEntities.put(e, MergedEntities.get(e)+limit.getMultiplier());
-				getLogger().info("entity " + entity.toString() + " was merged into a living entity " + e.toString() + " at " + e.getLocation().toString() + " multiplier: " + MergedEntities.get(e));
+				MergedEntities.put(e, MergedEntities.get(e) + 1);
+				getLogger().info("entity " + entity.toString() + " was merged into a living entity " + e.toString() + " at " + e.getLocation().toString() + " multiplier: " + getMultiplier(e));
 				return e;
 			}
 		}
@@ -975,7 +975,12 @@ public class MusterCull extends JavaPlugin {
 				return 0;
 			}
 			
-			int multiplier = (int) Math.round(MergedEntities.get(entity));
+			int multiplier;
+			if(MergedEntities.get(entity) == 1){
+				multiplier = 1; 
+			} else { 
+				multiplier = (int) Math.round(MergedEntities.get(entity) * limit.getMultiplier());
+			}
 			
 			//If the multiplier is above the limit set it to the limit.
 			if(multiplier > limit.getMultiplierLimit()){
