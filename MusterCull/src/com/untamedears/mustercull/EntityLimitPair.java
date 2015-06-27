@@ -2,6 +2,8 @@ package com.untamedears.mustercull;
 
 import org.bukkit.entity.Entity;
 
+import com.untamedears.mustercull.configurations.ConfigurationLimit;
+
 /**
  * Groups an entity and a limit for storage in perhaps a List.
  * 

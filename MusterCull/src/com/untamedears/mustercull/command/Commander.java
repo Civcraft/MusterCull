@@ -1,0 +1,695 @@
+package com.untamedears.mustercull.command;
+
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+
+import com.untamedears.mustercull.MusterCull;
+import com.untamedears.mustercull.configurations.ConfigurationLimit;
+import com.untamedears.mustercull.culltypes.CullType;
+import com.untamedears.mustercull.culltypes.GlobalCullType;
+import com.untamedears.mustercull.statusitem.StatusItem;
+
+/**
+ * Handles commands from players or server console users.
+ * @author Celdecea
+ *
+ */
+public class Commander implements CommandExecutor {
+
+	/**
+	 * Buffer for a reference to the plug-in instance.
+	 */
+	private MusterCull pluginInstance = null;
+
+	/**
+	 * Constructor which accepts a reference to the plug-in instance.
+	 * @param pluginInstance A reference to the plug-in instance.
+	 */
+	public Commander(MusterCull pluginInstance) {
+		this.pluginInstance = pluginInstance;
+	}	
+	
+	
+	/**
+	 * Event handler for commands sent by players and console users.
+	 * @param sender A reference to a Bukkit CommandSender for this event.
+	 * @param command A reference to a Bukkit Command for this event.
+	 * @param caption The name of this event.
+	 * @param argv A list of arguments for this event.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	@Override
+	public boolean onCommand(CommandSender sender, Command command, String caption, String[] argv) {
+		
+		if (caption.length() <= 0) {
+			return false;
+		}
+		
+		caption = caption.toLowerCase().replace("mustercull", "mcull");
+		
+		if (caption.equals("mcull")) {
+			return commandControl(sender, argv);
+		}
+		else if (caption.equals("muster")) {
+			return commandMuster(sender, argv);
+		}
+		else if (caption.equals("cull")) {
+			return commandCull(sender, argv);
+		}
+		else if (caption.equals("mcullstatus")) {
+			return commandStatus(sender, argv);
+		}
+		else if (caption.equals("mculllimit")) {
+			return commandLimit(sender, argv);
+		}
+		else if (caption.equals("mcullhardlimit")) {
+			return commandHardLimit(sender, argv);
+		}
+		else if (caption.equals("mcullentities")) {
+			return commandEntities(sender, argv);
+		}
+		else if (caption.equals("mculltypes")) {
+			return commandTypes(sender, argv);
+		}
+		else if (caption.equals("mcullhardlimitstrategy")) {
+			return commandHardLimitStrategy(sender, argv);
+		}
+		else {
+			return false;
+		}
+	}
+	
+
+	/**
+	 * Command handler which allows changing the culling strategy between priority and random.
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	private boolean commandHardLimitStrategy(CommandSender sender, String[] argv) {
+		
+		if (argv.length < 1) {
+			return false;
+		}
+		
+		if (!(argv[0].toUpperCase().equals("RANDOM") || argv[0].toUpperCase().equals("PRIORITY")))
+		{
+			sender.sendMessage("MusterCull: unknown culling strategy '" + argv[0] + "'.  No changes made.");
+			return true;
+		}
+		else
+		{
+			this.pluginInstance.setHardCapCullingStrategy(argv[0].toUpperCase());
+			sender.sendMessage("MusterCull: Hard Cap Culling strategy changed to '" + argv[0] + "'.");
+		}
+		return true;
+	}
+
+
+	/**
+	 * Command handler which allows pausing/resuming individual culling types
+	 * and resetting the list of entities to damage (if any).
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	public boolean commandControl(CommandSender sender, String[] argv) {
+
+		if (argv.length < 1) {
+			return false;
+		}
+		
+		if (argv[0].compareToIgnoreCase("pause") == 0) {
+			
+			CullType cullType = null;
+			
+			if (argv.length >= 2) {
+                if (argv[1].equalsIgnoreCase("hard_cap_laborer")) {
+                    this.pluginInstance.pauseCulling(GlobalCullType.HARDCAP);
+			    	sender.sendMessage("MusterCull: culling paused for hard cap laborer, if it wasn't already.");
+                    return true;
+                }
+				cullType = CullType.fromName(argv[1]);
+				
+				if (cullType == null) {
+					sender.sendMessage("MusterCull: unknown culling type '" + argv[1] + "' provided. Use /mculltypes to get a list.");
+					return true;
+				}
+			}
+			
+			if (cullType == null) {
+				this.pluginInstance.pauseAllCulling();
+				sender.sendMessage("MusterCull: culling paused for all culling types.");
+			}
+			else {
+				this.pluginInstance.pauseCulling(cullType);
+				sender.sendMessage("MusterCull: culling paused for " + cullType.toString() + ", if it wasn't already.");
+			}
+		}
+		else if (argv[0].compareToIgnoreCase("continue") == 0 || 0 == argv[0].compareToIgnoreCase("resume")) {
+			
+			CullType cullType = null;
+			
+			if (argv.length >= 2) {
+                if (argv[1].equalsIgnoreCase("hard_cap_laborer")) {
+                    pluginInstance.resumeCulling(GlobalCullType.HARDCAP);
+                    sender.sendMessage("MusterCull: culling paused for hard cap laborer, if it wasn't already.");
+                    return true;
+                }
+				cullType = CullType.fromName(argv[1]);
+				
+				if (cullType == null) {
+					sender.sendMessage("MusterCull: unknown culling type '" + argv[1] + "' provided. Use /mculltypes to get a list.");
+					return true;
+				}
+			}
+			
+			if (cullType == null) {
+				this.pluginInstance.resumeAllCulling();
+				sender.sendMessage("MusterCull: culling resumed for all culling types.");
+			}
+			else {
+				this.pluginInstance.resumeCulling(cullType);
+				sender.sendMessage("MusterCull: culling resumed for " + cullType.toString() + ", if it was disabled.");
+			}
+		}
+		else if (argv[0].compareToIgnoreCase("reset") == 0) {
+			this.pluginInstance.clearRemainingEntitiesDamage();
+			this.pluginInstance.clearRemainingEntitiesMerge();
+			sender.sendMessage("MusterCull: remaining entities cleared from the list.");
+		}
+		else if (argv[0].compareToIgnoreCase("damage") == 0) {
+			
+			int damage = 0;
+			
+			if (argv.length >= 1) {
+				try {
+					damage = Integer.parseInt(argv[1]);
+				}
+				catch (NumberFormatException e) {
+					sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[1]);
+					return true;
+				}
+			}
+			
+			this.pluginInstance.setDamage(damage);
+			
+			sender.sendMessage("MusterCull: setting damage to " + damage + ".");
+		}
+		else if (argv[0].compareToIgnoreCase("count") == 0) {
+			
+			int count = 0;
+			
+			if (argv.length >= 1) {
+				try {
+					count = Integer.parseInt(argv[1]);
+				}
+				catch (NumberFormatException e) {
+					sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[1]);
+					return true;
+				}
+			}
+			
+			if(argv.length >= 2) {
+				if(argv[1].equalsIgnoreCase("MERGE")) {
+					this.pluginInstance.setDamageCalls(count);
+				} else if(argv[1].equalsIgnoreCase("DAMAGE")) {
+					this.pluginInstance.setMergeCalls(count);
+				}
+			} else {
+				this.pluginInstance.setDamageCalls(count);
+			}
+			
+			sender.sendMessage("MusterCull: setting damage call count to " + count + ".");
+		}
+		else if (argv[0].compareToIgnoreCase("chance") == 0) {
+	
+			int chance = 0;
+			
+			if (argv.length >= 1) {
+				try {
+					chance = Integer.parseInt(argv[1]);
+				}
+				catch (NumberFormatException e) {
+					sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[1]);
+					return true;
+				}
+			}
+			
+			this.pluginInstance.setDamageChance(chance);
+			
+			sender.sendMessage("MusterCull: setting damage chance count to " + chance + ".");
+		}
+		else if (argv[0].compareToIgnoreCase("save") == 0) {
+			sender.sendMessage("MusterCull: attempting to save the config file...");
+			this.pluginInstance.forceConfigSave();
+		}
+		else {
+			return false;
+		}
+			
+		
+		return true;
+	}
+	
+	
+	/**
+	 * Command handler which returns status information.
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	public boolean commandStatus(CommandSender sender, String[] argv) {
+		
+		boolean reported = false;
+		
+		if (this.pluginInstance.hasDamageLimits()) {
+			sender.sendMessage("MusterCull is using a laborer to damage " + this.pluginInstance.getRemainingEntitiesDamage() + " remaining entities before starting over.");
+			reported = true;
+		}
+		
+		if (this.pluginInstance.hasMergeLimits()) {
+			sender.sendMessage("MusterCull is using a laborer to merge" + this.pluginInstance.getRemainingEntitiesMerge() + " remaining entities before starting over.");
+			reported = true;
+		}
+		
+		for (CullType cullType : CullType.values()) {
+			if (this.pluginInstance.isPaused(cullType)) {
+				sender.sendMessage("CullType " + cullType.toString() + " is paused.");
+				reported = true;
+			}
+		}
+
+		int limit = 5;
+		for (StatusItem status : this.pluginInstance.getStats()) {
+			if (limit-- <= 0) {
+				break;
+			}
+			else {
+				sender.sendMessage("Player " + status.getEntity().getName() + " surrounded by " + status.getNearbyEntityCount() + " entities." +
+			" Of which " + status.getNearbyItemCount() + " are items.");
+				reported = true;
+			}
+		}
+		
+		if (this.pluginInstance.getHardCapStatistics() != null)
+		{
+			sender.sendMessage(this.pluginInstance.getHardCapStatistics());
+			reported = true;
+		}
+		
+		// Last message
+		if (!reported) {
+			sender.sendMessage("MusterCull has nothing to report.");
+		}
+		
+		return true;
+	}
+	
+	
+	/**
+	 * Command handler which manipulates the limit table.
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	public boolean commandLimit(CommandSender sender, String[] argv) {
+
+		if (argv.length < 4) {
+			return false;
+		}
+		
+		CullType cullingType = CullType.fromName(argv[0]);
+		
+		if (cullingType == null) {
+			sender.sendMessage("MusterCull: invalid culling type: " + argv[0] + " (use /mculltypes)");
+			return true;
+		}
+		
+		EntityType entityType = EntityType.valueOf(argv[1]);
+		
+		if (entityType == null) {
+			sender.sendMessage("MusterCull: invalid entity type: " + argv[1] + " (see /mcullentities)");
+			return true;
+		}
+		
+		int limit = 0;
+		
+		try {
+			limit = Integer.parseInt(argv[2]);
+		}
+		catch (NumberFormatException e) {
+			sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[2]);
+			return true;
+		}
+		
+		if (limit < 0) {
+			sender.sendMessage("MusterCull: limit must be greater than or equal to zero.");
+			return true;
+		}
+		
+		int range = 0;
+		
+		try {
+			range = Integer.parseInt(argv[3]);
+		}
+		catch (NumberFormatException e) {
+			sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[3]);
+			return true;
+		}
+		
+		if (range <= 0) {
+			sender.sendMessage("MusterCull: range must be greater than zero.");
+			return true;
+		}
+		int spawnDelay = 0;
+		double multiplier = 0;
+		double multiplierLimit = 0;
+		
+		if(argv.length == 7){
+			
+			try {
+				spawnDelay = Integer.parseInt(argv[4]);
+			}
+			catch (NumberFormatException e) {
+				sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[4]);
+				return true;
+			}
+			
+			if (spawnDelay <= 0) {
+				sender.sendMessage("MusterCull: spawnDelay must be greater than zero.");
+				return true;
+			}
+			
+			try {
+				multiplier = Double.parseDouble(argv[5]);
+			}
+			catch (NumberFormatException e) {
+				sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[5]);
+				return true;
+			}
+			
+			if (multiplier <= 0) {
+				sender.sendMessage("MusterCull: multiplier must be greater than zero.");
+				return true;
+			}
+			
+			try {
+				multiplierLimit = Double.parseDouble(argv[6]);
+			}
+			catch (NumberFormatException e) {
+				sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[6]);
+				return true;
+			}
+			
+			if (multiplierLimit <= 0) {
+				sender.sendMessage("MusterCull: multiplierLimit must be greater than zero.");
+				return true;
+			}
+		}
+		ConfigurationLimit configLimit = new ConfigurationLimit(limit, cullingType, range, spawnDelay, multiplier, multiplierLimit);
+		sender.sendMessage("MusterCull: The limit was successfully added");
+		this.pluginInstance.setLimit(entityType, configLimit);
+		
+		return true;
+	}
+	
+	/**
+	 * Command handler which manipulates the hard mob limit.
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	public boolean commandHardLimit(CommandSender sender, String[] argv) {
+		
+		if (argv.length < 2) {
+			return false;
+		}
+		
+		String limit = argv[0];
+		int value = 0;
+		try {
+			value = Integer.parseInt(argv[1]);
+		}
+		catch (NumberFormatException e) {
+			sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[1]);
+			return true;
+		}
+		
+		if (value < 0) {
+			sender.sendMessage("MusterCull: value must be greater than or equal to zero.");
+			return true;
+		}
+		
+		if (limit.compareToIgnoreCase("maxmob") == 0) {
+			this.pluginInstance.setMaxMob(value);
+		}
+		else if (limit.compareToIgnoreCase("pmulti") == 0) {
+			this.pluginInstance.setPlayerMultiplier(value);
+		}
+		else {
+			sender.sendMessage("MusterCull: invalid hard limit variable: " + limit + " (use maxmob or pmulti)");
+			return true;
+		}
+
+		return true;
+	}
+	
+	/**
+	 * Command handler which returns a list of Bukkit entities. 
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	public boolean commandEntities(CommandSender sender, String[] argv) {
+		
+		int string_count = 0;
+		StringBuilder message = new StringBuilder();
+		
+		for (EntityType entityType : EntityType.values()) {
+			
+			if (entityType.name() == "null") {
+				continue;
+			}
+			
+			if (entityType.isAlive()) {
+				if (string_count > 0) {
+					message.append(", ");
+				}
+				
+				message.append(entityType.name());
+				
+				if (string_count++ > 4) {
+					sender.sendMessage("MusterCull Entity Types: " + message.toString());
+					message = new StringBuilder();
+					string_count = 0;
+				}
+			}
+			
+		}
+		
+		if (string_count > 0) {
+			sender.sendMessage("MusterCull Entity Types: " + message.toString());
+			message = new StringBuilder();
+		}
+		
+		return true;
+	}
+	
+	
+	/**
+	 * Command handler which returns a list of Culling Types. 
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	public boolean commandTypes(CommandSender sender, String[] argv) {
+		
+		int string_count = 0;
+		StringBuilder message = new StringBuilder();
+		
+		for (CullType cullType : CullType.values()) {
+			
+			if (cullType.toString() == "null") {
+				continue;
+			}
+			
+			if (string_count > 0) {
+				message.append(", ");
+			}
+			
+			message.append(cullType.toString());
+			
+			if (string_count++ > 4) {
+				sender.sendMessage("MusterCull Culling Types: " + message.toString());
+				message = new StringBuilder();
+				string_count = 0;
+			}
+			
+		}
+		
+		if (string_count > 0) {
+			sender.sendMessage("MusterCull Culling Types: " + message.toString());
+			message = new StringBuilder();
+		}
+		
+		return true;
+	}
+	
+	
+	
+	
+	/**
+	 * Command handler damages nearby mobs.
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	public boolean commandMuster(CommandSender sender, String[] argv) {
+		
+		if (argv.length < 3) {
+			return false;
+		}
+		
+		EntityType entityType = EntityType.valueOf(argv[0]);
+		
+		if (entityType == null) {
+			sender.sendMessage("MusterCull: invalid entity type: " + argv[0] + " (see /mcullentities)");
+			return true;
+		}
+		
+		int damage = 0;
+		
+		try {
+			damage = Integer.parseInt(argv[1]);
+		}
+		catch (NumberFormatException e) {
+			sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[1]);
+			return true;
+		}
+		
+		if (damage <= 0) {
+			sender.sendMessage("MusterCull: damage must be greater than zero.");
+		}
+		 
+		int range = 0;
+		
+		try {
+			range = Integer.parseInt(argv[2]);
+		}
+		catch (NumberFormatException e) {
+			sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[2]);
+			return true;
+		}
+		
+		if (range <= 0) {
+			sender.sendMessage("MusterCull: range must be greater than zero.");
+			return true;
+		}
+		
+		String searchName = null;
+		
+		if (argv.length > 3) {
+			searchName = argv[3];
+		}
+		else {
+			if (sender instanceof Player) {
+				searchName = sender.getName();
+			}
+			else {
+				sender.sendMessage("MusterCull: Please add a player name to end of the command.");
+				return true;
+			}
+		}
+
+		int count = this.pluginInstance.damageEntitiesAroundPlayer(searchName, entityType, damage, range);
+		
+		if (count > 0) {
+			sender.sendMessage("MusterCull: damaged up to " + count + " entities of type " + entityType + " around player " + searchName + ".");
+		}
+		else {
+			sender.sendMessage("MusterCull: Could not find any entities of type " + entityType + " to damage around player "+ searchName + ".");
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * Command handler which kills nearby mobs.
+	 * @param sender A reference to a Bukkit CommandSender for this handler.
+	 * @param argv A list of arguments for this handler.
+	 * @return Whether or not this event was handled and should be canceled.
+	 */
+	public boolean commandCull(CommandSender sender, String[] argv) {
+		
+		if (argv.length < 1) {
+			return false;
+		}
+		
+		EntityType entityType = EntityType.valueOf(argv[0]);
+		
+		if (entityType == null) {
+			sender.sendMessage("MusterCull: invalid entity type: " + argv[0] + " (see /mcullentities)");
+			return true;
+		}
+		
+		if(argv.length == 1){
+			int count = this.pluginInstance.damageEntities(entityType, 999);
+			if (count > 0) {
+				sender.sendMessage("MusterCull: damaged up to " + count + " entities of type " + entityType + ".");
+			}
+			else {
+				sender.sendMessage("MusterCull: Could not find any entities of type " + entityType + " to damage.");
+			}
+			return true;
+		}
+		int range = 0;
+		
+		try {
+			range = Integer.parseInt(argv[1]);
+		}
+		catch (NumberFormatException e) {
+			sender.sendMessage("MusterCull: parameter must be a number, you entered: " + argv[1]);
+			return true;
+		}
+		
+		if (range <= 0) {
+			sender.sendMessage("MusterCull: range must be greater than zero.");
+			return true;
+		}
+		
+		String searchName = null;
+		
+		if (argv.length > 2) {
+			searchName = argv[2];
+		}
+		else {
+			if (sender instanceof Player) {
+				searchName = sender.getName();
+			}
+			else {
+				sender.sendMessage("MusterCull: Please add a player name to end of the command.");
+				return true;
+			}
+		}
+
+		int count = this.pluginInstance.damageEntitiesAroundPlayer(searchName, entityType, 999, range);
+		
+		if (count > 0) {
+			sender.sendMessage("MusterCull: damaged up to " + count + " entities of type " + entityType + " around player " + searchName + ".");
+		}
+		else {
+			sender.sendMessage("MusterCull: Could not find any entities of type " + entityType + " to damage around player "+ searchName + ".");
+		}
+		
+		return true;
+	}
+	
+
+
+	
+	
+}

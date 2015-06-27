@@ -1,10 +1,10 @@
-package com.untamedears.mustercull;
+package com.untamedears.mustercull.culltypes;
 
 /**
  * The method used to cull the mobs
  * @author ngozi
  */
-enum GlobalCullType {
+public enum GlobalCullType {
 
 	/**
 	 * Kills mobs over the mob cap.
