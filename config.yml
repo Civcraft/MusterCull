@@ -19,6 +19,13 @@ limits:
   culling: DAMAGE
   limit: 10
   range: 144
+- type: CREEPER
+  culling: MERGE
+  limit: 5
+  range: 144
+  spawnDelay: 3
+  multiplier: 1
+  multiplierLimit: 8
 - type: SKELETON
   culling: SPAWNER
   limit: 10
@@ -31,6 +38,13 @@ limits:
   culling: DAMAGE
   limit: 10
   range: 144
+- type: SKELETON
+  culling: MERGE
+  limit: 5
+  range: 144
+  spawnDelay: 5
+  multiplier: 1
+  multiplierLimit: 10
 - type: SPIDER
   culling: SPAWNER
   limit: 10
@@ -43,6 +57,13 @@ limits:
   culling: DAMAGE
   limit: 10
   range: 144
+- type: SPIDER
+  culling: MERGE
+  limit: 5
+  range: 144
+  spawnDelay: 5
+  multiplier: 1
+  multiplierLimit: 10
 - type: ZOMBIE
   culling: SPAWNER
   limit: 10
@@ -55,14 +76,35 @@ limits:
   culling: DAMAGE
   limit: 10
   range: 144
+- type: ZOMBIE
+  culling: MERGE
+  limit: 5
+  range: 144
+  spawnDelay: 3
+  multiplier: 1
+  multiplierLimit: 10
 - type: CAVE_SPIDER
   culling: SPAWNER
   limit: 10
   range: 144
+- type: CAVE_SPIDER
+  culling: MERGE
+  limit: 4
+  range: 144
+  spawnDelay: 10
+  multiplier: 1
+  multiplierLimit: 20
 - type: BLAZE
   culling: SPAWNER
   limit: 10
   range: 144
+- type: BLAZE
+  culling: MERGE
+  limit: 5
+  range: 144
+  spawnDelay: 5
+  multiplier: 1
+  multiplierLimit: 10
 - type: PIG
   culling: DAMAGE
   limit: 10
@@ -167,9 +209,9 @@ limits:
   culling: MERGE
   limit: 4
   range: 144
-  spawnDelay: 10
-  multiplier: 1
-  multiplierLimit: 20
+  spawnDelay: 20
+  multiplier: 0.5
+  multiplierLimit: 30
 - type: HORSE
   culling: DAMAGE
   limit: 15
