@@ -554,7 +554,7 @@ public class Commander implements CommandExecutor {
 			return false;
 		}
 		
-		EntityType entityType = EntityType.valueOf(argv[0]);
+		EntityType entityType = EntityType.valueOf(argv[0].toUpperCase());
 		
 		if (entityType == null) {
 			sender.sendMessage("MusterCull: invalid entity type: " + argv[0] + " (see /mcullentities)");
@@ -629,7 +629,7 @@ public class Commander implements CommandExecutor {
 			return false;
 		}
 		
-		EntityType entityType = EntityType.valueOf(argv[0]);
+		EntityType entityType = EntityType.valueOf(argv[0].toUpperCase());
 		
 		if (entityType == null) {
 			sender.sendMessage("MusterCull: invalid entity type: " + argv[0] + " (see /mcullentities)");
