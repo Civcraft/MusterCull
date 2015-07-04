@@ -554,9 +554,10 @@ public class Commander implements CommandExecutor {
 			return false;
 		}
 		
-		EntityType entityType = EntityType.valueOf(argv[0].toUpperCase());
-		
-		if (entityType == null) {
+		EntityType entityType;
+		try {
+			entityType = EntityType.valueOf(argv[0].toUpperCase());
+		} catch(IllegalArgumentException e) {
 			sender.sendMessage("MusterCull: invalid entity type: " + argv[0] + " (see /mcullentities)");
 			return true;
 		}
@@ -629,9 +630,10 @@ public class Commander implements CommandExecutor {
 			return false;
 		}
 		
-		EntityType entityType = EntityType.valueOf(argv[0].toUpperCase());
-		
-		if (entityType == null) {
+		EntityType entityType;
+		try {
+			entityType = EntityType.valueOf(argv[0].toUpperCase());
+		} catch(IllegalArgumentException e) {
 			sender.sendMessage("MusterCull: invalid entity type: " + argv[0] + " (see /mcullentities)");
 			return true;
 		}
