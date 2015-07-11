@@ -96,7 +96,7 @@ public class MusterCull extends JavaPlugin {
     /**
      * A map containing all the merged entities.
      */
-    private ConcurrentHashMap<Entity, Double> MergedEntities = new ConcurrentHashMap<Entity, Double>();
+    private Map<Entity, Double> MergedEntities = new ConcurrentHashMap<Entity, Double>();
     
 	/**
 	 * Called when the plug-in is enabled by Bukkit.
@@ -391,7 +391,7 @@ public class MusterCull extends JavaPlugin {
 	 * Returns the next entity for monitoring.
 	 * @return A reference to an EntityLimitPair.
 	 */
-	public EntityLimitPair getNextEntityDamage() {
+	public EntityLimitPair getNextEntityToDamage() {
 		
 		synchronized(this.knownEntitiesDamage) {
 			if (this.returningKnownEntityDamage) {
@@ -481,7 +481,7 @@ public class MusterCull extends JavaPlugin {
 	 * Returns the next entity for monitoring.
 	 * @return A reference to an EntityLimitPair.
 	 */
-	public EntityLimitPair getNextEntityMerge() {
+	public EntityLimitPair getNextEntityToMerge() {
 		
 		synchronized(this.knownEntitiesMerge) {
 			if (this.returningKnownEntityMerge) {
@@ -902,7 +902,9 @@ public class MusterCull extends JavaPlugin {
 		
 		// if we have reached the spawn limit, spawn the entity.
 		if(e != null && e == entity && MergedEntities.get(e) == limit.getSpawnDelay()){
-			getLogger().info("A merged entity was spawned " + e.toString() + " at " + e.getLocation().toString() + " multiplier: " + getMultiplier(e));
+			if(this.config.getMergeNotify()){
+				getLogger().info("A merged entity was spawned " + e.toString() + " at " + e.getLocation().toString() + " multiplier: " + getMultiplier(e));
+			}
 			return false;
 		}
 		
@@ -944,18 +946,24 @@ public class MusterCull extends JavaPlugin {
 			if(e.isDead()){
 				MergedEntities.put(entity, MergedEntities.get(e) + 1);
 				MergedEntities.remove(e);
-				getLogger().info("entity " + entity.toString() + " was merged into a dead entity " + e.toString() + " at " + entity.getLocation().toString() + " multiplier: " + getMultiplier(entity));
+				if(this.config.getMergeNotify()){
+					getLogger().info("entity " + entity.toString() + " was merged into a dead entity " + e.toString() + " at " + entity.getLocation().toString() + " multiplier: " + getMultiplier(entity));
+				}
 				return entity;
 			} else {
 				MergedEntities.put(e, MergedEntities.get(e) + 1);
-				getLogger().info("entity " + entity.toString() + " was merged into a living entity " + e.toString() + " at " + e.getLocation().toString() + " multiplier: " + getMultiplier(e));
+				if(this.config.getMergeNotify()){
+					getLogger().info("entity " + entity.toString() + " was merged into a living entity " + e.toString() + " at " + e.getLocation().toString() + " multiplier: " + getMultiplier(e));
+				}
 				return e;
 			}
 		}
 		
 		if(newMergedEntity){
 			MergedEntities.put(entity, 1.0);
-			getLogger().info("A new entity was added to the map " + entity.toString() + " at " + entity.getLocation().toString());
+			if(this.config.getMergeNotify()){
+				getLogger().info("A new entity was added to the map " + entity.toString() + " at " + entity.getLocation().toString());
+			}
 			return entity;
 		} else {
 			return null;
@@ -1029,7 +1037,7 @@ public class MusterCull extends JavaPlugin {
 		}
 	}
 	
-	public ConcurrentHashMap<Entity, Double> getMergedEntities() {
+	public Map<Entity, Double> getMergedEntities() {
 		return MergedEntities;
 	}
 

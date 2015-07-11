@@ -31,7 +31,9 @@ public class RemoveDespawnedMergedEntitiesLaborer extends Laborer{
 			
 			if(entity.isDead() && this.getPluginInstance().getMergedEntities().get(entity) >= limit.getSpawnDelay()){
 				this.getPluginInstance().getMergedEntities().remove(entity);
-				this.getPluginInstance().getLogger().info("An "+ entity.toString() +" despawned and was removed from the map at " + entity.getLocation().toString());
+				if(this.getPluginInstance().getConfiguration().getMergeNotify()){
+					this.getPluginInstance().getLogger().info("An "+ entity.toString() +" despawned and was removed from the map at " + entity.getLocation().toString());
+				}
 			}
 		}
 	}

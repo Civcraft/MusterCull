@@ -34,7 +34,7 @@ public class MergeLaborer extends Laborer {
 		
 		for (int i = 0; i < MergeCalls; i++)
 		{
-			EntityLimitPair entityLimitPair = this.getPluginInstance().getNextEntityMerge();
+			EntityLimitPair entityLimitPair = this.getPluginInstance().getNextEntityToMerge();
 			if (entityLimitPair == null) {
 				return;
 			}
