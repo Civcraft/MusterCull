@@ -39,8 +39,7 @@ public class EntityListener extends Listener {
 		 * The entity in this event isn't included in overHardMobLimit so account for this. */
 		if (getPluginInstance().overHardMobLimit() + 1 > 0) {
 			/* Always let a player join. */
-			if (! (event.getEntity() instanceof Player)
-				&& (! (event.getEntity() instanceof ArmorStand))) {
+			if (! (event.getEntity() instanceof Player)) {
 				event.setCancelled(true);
 				return;
 			}
@@ -88,7 +87,9 @@ public class EntityListener extends Listener {
 		if(this.getPluginInstance().getMergedEntities().get(event.getEntity())!=null){
 			this.getPluginInstance().AdjustDropsOfMergedEntity(event.getEntity(), event.getDrops());
 			int multiplier = this.getPluginInstance().getMultiplier(event.getEntity());
-			this.getPluginInstance().getLogger().info("A merged entity was killed " + event.getEntity().toString() + " at " + event.getEntity().getLocation().toString() + " multiplier: " + multiplier);
+			if(this.getPluginInstance().getConfiguration().getMergeNotify()){
+				this.getPluginInstance().getLogger().info("A merged entity was killed " + event.getEntity().toString() + " at " + event.getEntity().getLocation().toString() + " multiplier: " + multiplier);
+			}
 			this.getPluginInstance().getMergedEntities().remove(event.getEntity());
 		}
 	}

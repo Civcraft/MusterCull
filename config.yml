@@ -228,6 +228,21 @@ limits:
   culling: SPAWN
   limit: 8
   range: 144
+- type: GUARDIAN
+  culling: SPAWN
+  limit: 6
+  range: 144
+- type: GUARDIAN
+  culling: DAMAGE
+  limit: 6
+  range: 144
+- type: GUARDIAN
+  culling: MERGE
+  limit: 5
+  range: 144
+  spawnDelay: 3
+  multiplier: 1
+  multiplierLimit: 10
 
 # The amount of damage to apply to mobs which are considered crowded under the
 # DAMAGE method of culling.
@@ -251,6 +266,9 @@ mob_limit_percent_damage: 5
 
 # Whether to print a message when mobs are damaged. 
 damage_notify: false
+
+# Whether to print a message when mobs are merged. 
+merge_notify: false
 
 # The number of entities to merge each round of the laborer.
 merge_count: 5

@@ -1,0 +1,213 @@
+[14:10:29] [Server thread/INFO]: Starting minecraft server version 1.8.3
+[14:10:29] [Server thread/INFO]: Loading properties
+[14:10:29] [Server thread/INFO]: Default game type: SURVIVAL
+[14:10:29] [Server thread/INFO]: This server is running CraftBukkit version git-Spigot-870264a-0a645a2 (MC: 1.8.3) (Implementing API version 1.8.3-R0.1-SNAPSHOT)
+[14:10:29] [Server thread/INFO]: Server Ping Player Sample Count: 12
+[14:10:29] [Server thread/INFO]: Using 4 threads for Netty based IO
+[14:10:29] [Server thread/INFO]: Debug logging is disabled
+[14:10:29] [Server thread/INFO]: Generating keypair
+[14:10:29] [Server thread/INFO]: Starting Minecraft server on *:25570
+[14:10:29] [Server thread/INFO]: Using epoll channel type
+[14:10:29] [Server thread/INFO]: Set PluginClassLoader as parallel capable
+[14:10:29] [Server thread/INFO]: [WorldEdit] Loading WorldEdit v6.1;no_git_id
+[14:10:29] [Server thread/INFO]: [MusterCull] Loading MusterCull v1.4.3
+[14:10:29] [Server thread/INFO]: **** Beginning UUID conversion, this may take A LONG time ****
+[14:10:29] [Server thread/INFO]: Preparing level "world"
+[14:10:29] [Server thread/INFO]: -------- World Settings For [world] --------
+[14:10:29] [Server thread/INFO]: Cactus Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Cane Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Melon Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Mushroom Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Sapling Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Wheat Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Mi 16
+[14:10:29] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Other 64
+[14:10:29] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 8 Hopper Amount: 1
+[14:10:29] [Server thread/INFO]: Random Lighting Updates: false
+[14:10:29] [Server thread/INFO]: Structure Info Saving: true
+[14:10:29] [Server thread/INFO]: Mob Spawn Range: 4
+[14:10:29] [Server thread/INFO]: Anti X-Ray: true
+[14:10:29] [Server thread/INFO]: 	Engine Mode: 1
+[14:10:29] [Server thread/INFO]: 	Hidden Blocks: [14, 15, 16, 21, 48, 49, 54, 56, 73, 74, 82, 129, 130]
+[14:10:29] [Server thread/INFO]: 	Replace Blocks: [1, 5]
+[14:10:29] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
+[14:10:29] [Server thread/INFO]: Sending up to 10 chunks per packet
+[14:10:29] [Server thread/INFO]: Max Entity Collisions: 8
+[14:10:29] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Feature: 14357617
+[14:10:29] [Server thread/INFO]: Max TNT Explosions: 100
+[14:10:29] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
+[14:10:29] [Server thread/INFO]: Item Despawn Rate: 6000
+[14:10:29] [Server thread/INFO]: Item Merge Radius: 2.5
+[14:10:29] [Server thread/INFO]: Arrow Despawn Rate: 1200
+[14:10:29] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
+[14:10:29] [Server thread/INFO]: View Distance: 10
+[14:10:29] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
+[14:10:29] [Server thread/INFO]: Chunks to Grow per Tick: 650
+[14:10:29] [Server thread/INFO]: Clear tick list: false
+[14:10:29] [Server thread/INFO]: Experience Merge Radius: 3.0
+[14:10:29] [Server thread/INFO]: -------- World Settings For [world_nether] --------
+[14:10:29] [Server thread/INFO]: Cactus Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Cane Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Melon Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Mushroom Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Sapling Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Wheat Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Mi 16
+[14:10:29] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Other 64
+[14:10:29] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 8 Hopper Amount: 1
+[14:10:29] [Server thread/INFO]: Random Lighting Updates: false
+[14:10:29] [Server thread/INFO]: Structure Info Saving: true
+[14:10:29] [Server thread/INFO]: Mob Spawn Range: 4
+[14:10:29] [Server thread/INFO]: Anti X-Ray: true
+[14:10:29] [Server thread/INFO]: 	Engine Mode: 1
+[14:10:29] [Server thread/INFO]: 	Hidden Blocks: [14, 15, 16, 21, 48, 49, 54, 56, 73, 74, 82, 129, 130]
+[14:10:29] [Server thread/INFO]: 	Replace Blocks: [1, 5]
+[14:10:29] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
+[14:10:29] [Server thread/INFO]: Sending up to 10 chunks per packet
+[14:10:29] [Server thread/INFO]: Max Entity Collisions: 8
+[14:10:29] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Feature: 14357617
+[14:10:29] [Server thread/INFO]: Max TNT Explosions: 100
+[14:10:29] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
+[14:10:29] [Server thread/INFO]: Item Despawn Rate: 6000
+[14:10:29] [Server thread/INFO]: Item Merge Radius: 2.5
+[14:10:29] [Server thread/INFO]: Arrow Despawn Rate: 1200
+[14:10:29] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
+[14:10:29] [Server thread/INFO]: View Distance: 10
+[14:10:29] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
+[14:10:29] [Server thread/INFO]: Chunks to Grow per Tick: 650
+[14:10:29] [Server thread/INFO]: Clear tick list: false
+[14:10:29] [Server thread/INFO]: Experience Merge Radius: 3.0
+[14:10:29] [Server thread/INFO]: -------- World Settings For [world_the_end] --------
+[14:10:29] [Server thread/INFO]: Cactus Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Cane Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Melon Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Mushroom Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Pumpkin Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Sapling Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Wheat Growth Modifier: 100%
+[14:10:29] [Server thread/INFO]: Entity Activation Range: An 32 / Mo 32 / Mi 16
+[14:10:29] [Server thread/INFO]: Entity Tracking Range: Pl 48 / An 48 / Mo 48 / Mi 32 / Other 64
+[14:10:29] [Server thread/INFO]: Hopper Transfer: 8 Hopper Check: 8 Hopper Amount: 1
+[14:10:29] [Server thread/INFO]: Random Lighting Updates: false
+[14:10:29] [Server thread/INFO]: Structure Info Saving: true
+[14:10:29] [Server thread/INFO]: Mob Spawn Range: 4
+[14:10:29] [Server thread/INFO]: Anti X-Ray: true
+[14:10:29] [Server thread/INFO]: 	Engine Mode: 1
+[14:10:29] [Server thread/INFO]: 	Hidden Blocks: [14, 15, 16, 21, 48, 49, 54, 56, 73, 74, 82, 129, 130]
+[14:10:29] [Server thread/INFO]: 	Replace Blocks: [1, 5]
+[14:10:29] [Server thread/INFO]: Nerfing mobs spawned from spawners: false
+[14:10:29] [Server thread/INFO]: Sending up to 10 chunks per packet
+[14:10:29] [Server thread/INFO]: Max Entity Collisions: 8
+[14:10:29] [Server thread/INFO]: Custom Map Seeds:  Village: 10387312 Feature: 14357617
+[14:10:29] [Server thread/INFO]: Max TNT Explosions: 100
+[14:10:29] [Server thread/INFO]: Tile Max Tick Time: 50ms Entity max Tick Time: 50ms
+[14:10:29] [Server thread/INFO]: Item Despawn Rate: 6000
+[14:10:29] [Server thread/INFO]: Item Merge Radius: 2.5
+[14:10:29] [Server thread/INFO]: Arrow Despawn Rate: 1200
+[14:10:29] [Server thread/INFO]: Allow Zombie Pigmen to spawn from portal blocks: true
+[14:10:29] [Server thread/INFO]: View Distance: 10
+[14:10:29] [Server thread/INFO]: Zombie Aggressive Towards Villager: true
+[14:10:29] [Server thread/INFO]: Chunks to Grow per Tick: 650
+[14:10:29] [Server thread/INFO]: Clear tick list: false
+[14:10:29] [Server thread/INFO]: Experience Merge Radius: 3.0
+[14:10:29] [Server thread/INFO]: Preparing start region for level 0 (Seed: -1130994734255027887)
+[14:10:30] [Server thread/INFO]: Preparing start region for level 1 (Seed: -1130994734255027887)
+[14:10:30] [Server thread/INFO]: Preparing start region for level 2 (Seed: -1130994734255027887)
+[14:10:31] [Server thread/INFO]: [WorldEdit] Enabling WorldEdit v6.1;no_git_id
+[14:10:31] [Server thread/INFO]: WEPIF: Using the Bukkit Permissions API.
+[14:10:31] [Server thread/INFO]: [WorldEdit] Using com.sk89q.worldedit.bukkit.adapter.impl.Spigot_v1_8_R2 as the Bukkit adapter
+[14:10:31] [Server thread/INFO]: [MusterCull] Enabling MusterCull v1.4.3
+[14:10:31] [Server thread/ERROR]: Cannot load plugins/MusterCull/config.yml
+org.bukkit.configuration.InvalidConfigurationException: while scanning a simple key
+ in 'string', line 247, column 1:
+    GUARDIAN 
+    ^
+could not found expected ':'
+ in 'string', line 248, column 1:
+    # The amount of damage to apply  ... 
+    ^
+
+	at org.bukkit.configuration.file.YamlConfiguration.loadFromString(YamlConfiguration.java:57) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.configuration.file.FileConfiguration.load(FileConfiguration.java:226) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.configuration.file.FileConfiguration.load(FileConfiguration.java:169) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(YamlConfiguration.java:180) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.plugin.java.JavaPlugin.reloadConfig(JavaPlugin.java:188) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.plugin.java.JavaPlugin.getConfig(JavaPlugin.java:162) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at com.untamedears.mustercull.configurations.Configuration.load(Configuration.java:182) [MusterCull-1.4.2-SNAPSHOT.jar:?]
+	at com.untamedears.mustercull.MusterCull.onEnable(MusterCull.java:107) [MusterCull-1.4.2-SNAPSHOT.jar:?]
+	at org.bukkit.plugin.java.JavaPlugin.setEnabled(JavaPlugin.java:321) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.plugin.java.JavaPluginLoader.enablePlugin(JavaPluginLoader.java:335) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.plugin.SimplePluginManager.enablePlugin(SimplePluginManager.java:405) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.craftbukkit.v1_8_R2.CraftServer.loadPlugin(CraftServer.java:356) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.craftbukkit.v1_8_R2.CraftServer.enablePlugins(CraftServer.java:316) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at net.minecraft.server.v1_8_R2.MinecraftServer.r(MinecraftServer.java:416) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at net.minecraft.server.v1_8_R2.MinecraftServer.k(MinecraftServer.java:382) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at net.minecraft.server.v1_8_R2.MinecraftServer.a(MinecraftServer.java:337) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at net.minecraft.server.v1_8_R2.DedicatedServer.init(DedicatedServer.java:257) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at net.minecraft.server.v1_8_R2.MinecraftServer.run(MinecraftServer.java:522) [spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at java.lang.Thread.run(Thread.java:745) [?:1.7.0_79]
+Caused by: org.yaml.snakeyaml.scanner.ScannerException: while scanning a simple key
+ in 'string', line 247, column 1:
+    GUARDIAN 
+    ^
+could not found expected ':'
+ in 'string', line 248, column 1:
+    # The amount of damage to apply  ... 
+    ^
+
+	at org.yaml.snakeyaml.scanner.ScannerImpl.stalePossibleSimpleKeys(ScannerImpl.java:465) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.scanner.ScannerImpl.needMoreTokens(ScannerImpl.java:280) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.scanner.ScannerImpl.checkToken(ScannerImpl.java:225) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.parser.ParserImpl$ParseBlockMappingKey.produce(ParserImpl.java:558) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.parser.ParserImpl.peekEvent(ParserImpl.java:158) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.parser.ParserImpl.checkEvent(ParserImpl.java:143) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.composer.Composer.composeMappingNode(Composer.java:226) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.composer.Composer.composeNode(Composer.java:155) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.composer.Composer.composeSequenceNode(Composer.java:200) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.composer.Composer.composeNode(Composer.java:153) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.composer.Composer.composeMappingNode(Composer.java:231) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.composer.Composer.composeNode(Composer.java:155) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.composer.Composer.composeDocument(Composer.java:122) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.composer.Composer.getSingleNode(Composer.java:105) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.constructor.BaseConstructor.getSingleData(BaseConstructor.java:120) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.Yaml.loadFromReader(Yaml.java:481) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.yaml.snakeyaml.Yaml.load(Yaml.java:400) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	at org.bukkit.configuration.file.YamlConfiguration.loadFromString(YamlConfiguration.java:55) ~[spigot-1.8.3.jar:git-Spigot-870264a-0a645a2]
+	... 18 more
+[14:10:31] [Server thread/INFO]: [MusterCull] Warning: damage is <= 0, possibly wasting cpu cycles.
+[14:10:31] [Server thread/INFO]: [MusterCull] MusterCull will damage something every 20 ticks.
+[14:10:31] [Server thread/INFO]: [MusterCull] MusterCull will merge something every 20 ticks.
+[14:10:31] [Server thread/INFO]: [MusterCull] Monster cull: Up to 30 mobs per run, aggression is 0 to 5.
+[14:10:31] [Server thread/INFO]: [MusterCull] Monster cull: Up to 30 mobs per run, aggression is 0 to 5.
+[14:10:31] [Server thread/INFO]: [MusterCull] Monster cull: Up to 30 mobs per run, aggression is 0 to 5.
+[14:10:31] [Server thread/INFO]: [MusterCull] Monster cull: Up to 30 mobs per run, aggression is 0 to 5.
+[14:10:31] [Server thread/INFO]: [MusterCull] MusterCull will kill something every 40 ticks.
+[14:10:31] [Server thread/WARN]: [MusterCull] ticks_between_hard_cap is < 200, ignoring this and setting to 200.
+[14:10:31] [Server thread/INFO]: [MusterCull] MusterCull hard cap culling strategy = RANDOM.
+[14:10:31] [Server thread/INFO]: Server permissions file permissions.yml is empty, ignoring it
+[14:10:31] [Server thread/INFO]: Done (1.930s)! For help, type "help" or "?"
+[14:10:32] [User Authenticator #1/INFO]: UUID of player BlackXnt is 2a803b72-c51f-4e58-a8b8-ad476109af3e
+[14:10:32] [Server thread/INFO]: BlackXnt[/192.95.27.125:52405] logged in with entity id 32 at ([world]139.5752339202475, 68.0, 158.81373360563583)
+[14:10:41] [Server thread/INFO]: [MusterCull] Hostile cull - World world contains 34 of an allowed 95% of a hostile spawn limit of 79.
+[14:10:41] [Server thread/INFO]: [MusterCull] Hostile cull - World world_nether contains 0 of an allowed 95% of a hostile spawn limit of 0.
+[14:10:41] [Server thread/INFO]: [MusterCull] Hostile cull - World world_the_end contains 0 of an allowed 95% of a hostile spawn limit of 0.
+[14:10:51] [Server thread/INFO]: [MusterCull] Hostile cull - World world contains 42 of an allowed 95% of a hostile spawn limit of 79.
+[14:10:51] [Server thread/INFO]: [MusterCull] Hostile cull - World world_nether contains 0 of an allowed 95% of a hostile spawn limit of 0.
+[14:10:51] [Server thread/INFO]: [MusterCull] Hostile cull - World world_the_end contains 0 of an allowed 95% of a hostile spawn limit of 0.
+[14:11:01] [Server thread/INFO]: [MusterCull] Hostile cull - World world contains 42 of an allowed 95% of a hostile spawn limit of 79.
+[14:11:01] [Server thread/INFO]: [MusterCull] Hostile cull - World world_nether contains 0 of an allowed 95% of a hostile spawn limit of 0.
+[14:11:01] [Server thread/INFO]: [MusterCull] Hostile cull - World world_the_end contains 0 of an allowed 95% of a hostile spawn limit of 0.
+[14:11:05] [Server thread/INFO]: BlackXnt issued server command: /stop
+[14:11:05] [Server thread/INFO]: [BlackXnt: Stopping the server]
+[14:11:05] [Server thread/INFO]: Stopping server
+[14:11:05] [Server thread/INFO]: [MusterCull] Disabling MusterCull v1.4.3
+[14:11:05] [Server thread/INFO]: [WorldEdit] Disabling WorldEdit v6.1;no_git_id
+[14:11:05] [Server thread/INFO]: Saving players
+[14:11:05] [Server thread/INFO]: BlackXnt lost connection: Server closed
+[14:11:05] [Server thread/INFO]: BlackXnt left the game.
+[14:11:05] [Server thread/INFO]: Saving worlds
+[14:11:05] [Server thread/INFO]: Saving chunks for level 'world'/Overworld
+[14:11:05] [Server thread/INFO]: Saving chunks for level 'world_nether'/Nether
+[14:11:05] [Server thread/INFO]: Saving chunks for level 'world_the_end'/The End

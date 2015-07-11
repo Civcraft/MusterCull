@@ -111,6 +111,10 @@ public class Configuration {
 	 * Whether or not to notify when entities have been damaged.
 	 */
 	private boolean damageNotify = false;
+	/**
+	 * Whether or not to notify when entities have been merged.
+	 */
+	private boolean mergeNotify = false;
 	
 	/**
 	 * The hard mob limit. Also however many mobs can exist with no players.
@@ -177,26 +181,27 @@ public class Configuration {
 		
 		FileConfiguration config = this.pluginInstance.getConfig();
 		
-		this.setDamage(config.getInt("damage"));
-		this.setDamageChance(config.getInt("damage_chance"));
-		this.setDamageCalls(config.getInt("damage_count"));
-		this.setTicksBetweenDamage(config.getInt("ticks_between_damage"));
-		this.setMobLimitDamage(config.getInt("mob_limit_damage"));
-		this.setMobLimitPercentDamage(config.getInt("mob_limit_percent_damage"));
-		this.setDamageNotify(config.getBoolean("damage_notify"));
-		this.setMergeCalls(config.getInt("merge_count"));
-		this.setTicksBetweenMerge(config.getInt("ticks_between_merge"));
-		this.setMobLimitMerge(config.getInt("mob_limit_merge"));
-		this.setMobLimitPercentMerge(config.getInt("mob_limit_percent_merge"));
-		this.setMaximumMonsterCullAggression(config.getInt("max_monster_cull_aggression"));
-		this.setMinimumMonsterCullAggression(config.getInt("min_monster_cull_aggression"));
-		this.setMaximumMonsterCullPerPass(config.getInt("max_monster_cull_per_pass"));
-		this.setEnableMonsterCullToSpawn(config.getBoolean("enable_monster_cull_to_spawn"));
-		this.setMaxMob(config.getInt("mob_max_mob"));
-		this.setPlayerMultiplier(config.getInt("mob_player_multiplier"));
-        this.setTicksBetweenHardCap(config.getInt("ticks_between_hard_cap"));
-        this.setHardCapCullingStrategy(config.getString("hard_cap_culling_strategy"));
-        this.setHardCapCullingPriorityStrategyPenaltyMobPercent(config.getInt("hard_cap_culling_priority_strategy_penalty_mob_percent"));
+		this.setDamage(config.getInt("damage", damage));
+		this.setDamageChance(config.getInt("damage_chance", damageChance));
+		this.setDamageCalls(config.getInt("damage_count", damageCalls));
+		this.setTicksBetweenDamage(config.getInt("ticks_between_damage", (int)ticksBetweenDamage));
+		this.setMobLimitDamage(config.getInt("mob_limit_damage", mobLimitDamage));
+		this.setMobLimitPercentDamage(config.getInt("mob_limit_percent_damage", mobLimitPercentDamage));
+		this.setDamageNotify(config.getBoolean("damage_notify", damageNotify));
+		this.setMergeNotify(config.getBoolean("merge_notify", mergeNotify));
+		this.setMergeCalls(config.getInt("merge_count", mergeCalls));
+		this.setTicksBetweenMerge(config.getInt("ticks_between_merge", (int)ticksBetweenMerge));
+		this.setMobLimitMerge(config.getInt("mob_limit_merge", mobLimitMerge));
+		this.setMobLimitPercentMerge(config.getInt("mob_limit_percent_merge", mobLimitPercentMerge));
+		this.setMaximumMonsterCullAggression(config.getInt("max_monster_cull_aggression", maximumMonsterCullAggression));
+		this.setMinimumMonsterCullAggression(config.getInt("min_monster_cull_aggression", minimumMonsterCullAggression));
+		this.setMaximumMonsterCullPerPass(config.getInt("max_monster_cull_per_pass", maximumMonsterCullPerPass));
+		this.setEnableMonsterCullToSpawn(config.getBoolean("enable_monster_cull_to_spawn", enableMonsterCullToSpawn));
+		this.setMaxMob(config.getInt("mob_max_mob", maxMob));
+		this.setPlayerMultiplier(config.getInt("mob_player_multiplier", playerMultiplier));
+        this.setTicksBetweenHardCap(config.getInt("ticks_between_hard_cap", (int)ticksBetweenHardCap));
+        this.setHardCapCullingStrategy(config.getString("hard_cap_culling_strategy", hardCapCullingStrategy));
+        this.setHardCapCullingPriorityStrategyPenaltyMobPercent(config.getInt("hard_cap_culling_priority_strategy_penalty_mob_percent", hardCapCullingPriorityStrategyPenaltyMobPercent));
 						
 		List<?> list;
 				
@@ -295,6 +300,7 @@ public class Configuration {
 		config.set("mob_limit_damage", this.mobLimitDamage);
 		config.set("mob_limit_percent_damage", this.mobLimitPercentDamage);
 		config.set("damage_notify", this.damageNotify);
+		config.set("merge_notify", this.mergeNotify);
 		config.set("merge_count", this.mergeCalls);
 		config.set("ticks_between_merge", this.ticksBetweenMerge);
 		config.set("mob_limit_merge", this.mobLimitMerge);
@@ -787,12 +793,29 @@ public class Configuration {
 	}
 	
 	/**
+	 * Gets whether to notify when an entity is merged by this plugin.
+	 */
+	public boolean getMergeNotify() {
+		return this.mergeNotify;
+	}
+	
+	/**
 	 * Sets whether to notify when an entity is damaged by this plugin.
 	 * @param damageNotify Whether to notify when an entity is damaged by this plugin.
 	 */
 	public void setDamageNotify(boolean damageNotify) {
 		
 		this.damageNotify = damageNotify;
+		this.dirty = true;
+	}
+	
+	/**
+	 * Sets whether to notify when an entity is merged by this plugin.
+	 * @param mergeNotify Whether to notify when an entity is merged by this plugin.
+	 */
+	public void setMergeNotify(boolean mergeNotify) {
+		
+		this.mergeNotify = mergeNotify;
 		this.dirty = true;
 	}
 	
