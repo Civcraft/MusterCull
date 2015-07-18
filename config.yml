@@ -243,6 +243,10 @@ limits:
   spawnDelay: 3
   multiplier: 1
   multiplierLimit: 10
+- type: ARMOR_STAND
+  culling: SPAWN
+  limit: 5
+  range: 15
 
 # The amount of damage to apply to mobs which are considered crowded under the
 # DAMAGE method of culling.

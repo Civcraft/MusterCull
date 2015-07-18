@@ -341,7 +341,6 @@ public class MusterCull extends JavaPlugin {
         	List<Entity> entitiesInWorld = new ArrayList<Entity>(world.getEntitiesByClasses(classes));
             for (Entity entity : entitiesInWorld) {
                 if (   (! (entity instanceof Player))
-                	   && (! (entity instanceof ArmorStand))
                 	   && (! entity.isDead())) {
                     entities.add(entity);
                 }
@@ -364,7 +363,6 @@ public class MusterCull extends JavaPlugin {
         
         for (Entity entity : entitiesInWorld) {
             if (   (! (entity instanceof Player))
-            	   && (! (entity instanceof ArmorStand))
             	   && (! entity.isDead())) {
                 entities.add(entity);
             }
