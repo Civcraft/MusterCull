@@ -2,9 +2,9 @@
 # MusterCull
 # Bukkit plug-in connector file.
 #
-name: MusterCull
+name: ${project.name}
 main: com.untamedears.mustercull.MusterCull
-version: 1.4.3
+version: ${project.version}
 description: Removes persistent mobs due to overcrowding and other purposes.
 author: Celdecea
 commands:
