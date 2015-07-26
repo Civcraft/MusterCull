@@ -89,10 +89,10 @@ limits:
   range: 144
 - type: CAVE_SPIDER
   culling: MERGE
-  limit: 4
+  limit: 5
   range: 144
-  spawnDelay: 10
-  multiplier: 1
+  spawnDelay: 5
+  multiplier: 1.5
   multiplierLimit: 20
 - type: BLAZE
   culling: SPAWNER
